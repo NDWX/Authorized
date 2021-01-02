@@ -5,7 +5,8 @@
 		public string AdministratorGroup { get; set; }
 		
 		public string AdministrativeUser { get; set; }
-		
-		public ReadOnlyGrantee ReadOnlyGrantee { get; set; }
+
+		public AdministrativeActionGrantees AdministrativeActionGrantees { get; set; } =
+			AdministrativeActionGrantees.Administrators;
 	}
 }

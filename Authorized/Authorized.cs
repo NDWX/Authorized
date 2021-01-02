@@ -22,27 +22,16 @@ namespace Authorized
 			_options = options ?? throw new ArgumentNullException(nameof(options));
 		}
 
-		private Permission GetEffectivePermission(Noun subject, string action, Noun @object, IDictionary<string, string> context, string purpose,
-												string domain)
+		private Permission GetPermission(Noun subject, string action, Noun @object,
+												IDictionary<string, string> context, string purpose,
+												string domain, IAuthorizedDataStore dataStore)
 		{
-			IEnumerable<AccessControlEntry> accessControlEntries = _dataStoreProvider.Execute(
-					(dataSession, ctx) =>
-					{
-						return dataSession.GetAccessControlEntries(ctx.subject, ctx.action, ctx.@object, ctx.purpose,
-																	ctx.domain);
-					},
-					new {subject, action, @object, context, purpose, domain},
-					TransactionScopeOption.Required,
-					new TransactionOptions()
-					{
-						IsolationLevel = IsolationLevel.ReadCommitted
-					}
-				);
+			IEnumerable<AccessControlEntry> accessControlEntries = dataStore.GetAccessControlEntries(subject, action, @object, purpose, domain);
 
 			if(!(accessControlEntries?.Any() ?? false))
-				return Permission.Denied;
+				return Permission.None;
 
-			Permission permission = Permission.Denied;
+			Permission permission = Permission.None;
 
 			foreach(AccessControlEntry accessControlEntry in accessControlEntries)
 			{
@@ -70,31 +59,129 @@ namespace Authorized
 			return permission;
 		}
 
+		private Permission GetEffectivePermission(Noun subject, string action, Noun @object,
+												IDictionary<string, string> context, string purpose,
+												string domain, IAuthorizedDataStore dataSession)
+		{
+			Permission permission = GetPermission(subject, action, @object, context, purpose, domain, dataSession);
+
+			if(permission != Permission.None)
+				return permission;
+
+			if(@object != null && !string.IsNullOrWhiteSpace(@object.Type))
+			{
+				if(!string.IsNullOrWhiteSpace(@object.Identifier))
+				{
+					@object.Identifier = string.Empty;
+
+					permission =
+						GetPermission(subject, action, @object, context, purpose, domain, dataSession);
+
+					if(permission != Permission.None)
+						return permission;
+				}
+
+				permission =
+					GetPermission(subject, action, null, context, purpose, domain, dataSession);
+
+				if(permission != Permission.None)
+					return permission;
+
+			}
+
+			return Permission.Denied;
+		}
+
 		public Permission IsAuthorized(Noun subject, string action, Noun @object, IDictionary<string, string> context,
 										string purpose, string domain)
 		{
-			if(GetEffectivePermission(subject, action, @object, context, purpose, domain) == Permission.Denied)
-				return Permission.Denied;
+			if(string.IsNullOrWhiteSpace(subject.Type))
+				throw new ArgumentException(ExceptionMessages.SUBJECT_TYPE_MUST_BE_SPECIFIED, nameof(subject));
 
-			return Permission.Allowed;
+			if(string.IsNullOrWhiteSpace(subject.Identifier))
+				throw new ArgumentException(ExceptionMessages.SUBJECT_IDENTIFIER_MUST_BE_SPECIFIED, nameof(subject));
+
+			if(string.IsNullOrWhiteSpace(action))
+				throw new ArgumentException(ExceptionMessages.VALUE_CANNOT_BE_NULL_OR_WHITESPACE, nameof(action));
+
+			if(@object != null)
+			{
+				if(string.IsNullOrWhiteSpace(@object.Type))
+					throw new ArgumentException(ExceptionMessages.OBJECT_TYPE_MUST_BE_SPECIFIED, nameof(subject));
+
+				if(string.IsNullOrWhiteSpace(@object.Identifier))
+					throw new ArgumentException(ExceptionMessages.OBJECT_IDENTIFIER_MUST_BE_SPECIFIED, nameof(subject));
+			}
+
+			return _dataStoreProvider.Execute(
+					(dataSession, ctx) =>
+					{
+						if(ctx.@this.GetEffectivePermission(ctx.subject, ctx.action, ctx.@object, ctx.context, ctx.purpose,
+												ctx.domain, dataSession) ==
+							Permission.Denied)
+							return Permission.Denied;
+
+						return Permission.Allowed;
+					},
+					new {@this = this, subject, action, @object, context, purpose, domain},
+					TransactionScopeOption.Required,
+					new TransactionOptions()
+					{
+						IsolationLevel = IsolationLevel.ReadCommitted
+					}
+				);
 		}
 
 		public Permission IsAuthorized(Noun subject, IEnumerable<string> effectiveRoles, string action, Noun @object,
 										IDictionary<string, string> context,
 										string purpose, string domain)
 		{
-			if(GetEffectivePermission(subject, action, @object, context, purpose, domain) == Permission.Denied)
-				return Permission.Denied;
+			if(string.IsNullOrWhiteSpace(subject.Type))
+				throw new ArgumentException(ExceptionMessages.SUBJECT_TYPE_MUST_BE_SPECIFIED, nameof(subject));
 
-			foreach(string role in effectiveRoles)
+			if(string.IsNullOrWhiteSpace(subject.Identifier))
+				throw new ArgumentException(ExceptionMessages.SUBJECT_IDENTIFIER_MUST_BE_SPECIFIED, nameof(subject));
+
+			if(effectiveRoles == null) throw new ArgumentNullException(nameof(effectiveRoles));
+
+			if(string.IsNullOrWhiteSpace(action))
+				throw new ArgumentException(ExceptionMessages.VALUE_CANNOT_BE_NULL_OR_WHITESPACE, nameof(action));
+
+			if(@object != null)
 			{
-				if(GetEffectivePermission(new Noun() {Identifier = role, Type = SubjectTypes.Group}, action, @object, context, purpose,
-										domain) == Permission.Denied)
-					
-					return Permission.Denied;
+				if(string.IsNullOrWhiteSpace(@object.Type))
+					throw new ArgumentException(ExceptionMessages.OBJECT_TYPE_MUST_BE_SPECIFIED, nameof(subject));
+
+				if(string.IsNullOrWhiteSpace(@object.Identifier))
+					throw new ArgumentException(ExceptionMessages.OBJECT_IDENTIFIER_MUST_BE_SPECIFIED, nameof(subject));
 			}
 
-			return Permission.Allowed;
+			return _dataStoreProvider.Execute(
+					(dataSession, ctx) =>
+					{
+						if(ctx.@this.GetEffectivePermission(ctx.subject, ctx.action, ctx.@object, ctx.context, ctx.purpose,
+												ctx.domain, dataSession) == Permission.Denied)
+							return Permission.Denied;
+
+						foreach(string role in ctx.effectiveRoles)
+						{
+							if(ctx.@this.GetEffectivePermission(
+									new Noun() {Identifier = role, Type = SubjectTypes.Group},
+									ctx.action, ctx.@object, ctx.context, ctx.purpose, ctx.domain, dataSession) ==
+								Permission.Denied)
+
+								return Permission.Denied;
+						}
+
+						return Permission.Allowed;
+					},
+					new {@this = this, subject, effectiveRoles, action, @object, context, purpose, domain},
+					TransactionScopeOption.Required,
+					new TransactionOptions()
+					{
+						IsolationLevel = IsolationLevel.ReadCommitted
+					}
+				);
 		}
 
 		bool UserIsAdministrator()
@@ -106,48 +193,64 @@ namespace Authorized
 		public IEnumerable<AccessControlEntry> GetAccessControlEntries(Noun subject, string purpose, Noun @object,
 																		string domain)
 		{
-			if(subject == null) throw new ArgumentNullException(nameof(subject));
+			if(subject != null && string.IsNullOrWhiteSpace(subject.Type))
+				throw new ArgumentException(ExceptionMessages.SUBJECT_TYPE_MUST_BE_SPECIFIED, nameof(subject));
+
 			if(@object == null) throw new ArgumentNullException(nameof(@object));
 			if(domain == null) throw new ArgumentNullException(nameof(domain));
 
-			bool allowed =
-				_options.ReadOnlyGrantee == ReadOnlyGrantee.AllUsers ||
-				UserIsAdministrator() ||
-				(subject.Type == SubjectTypes.User && _options.ReadOnlyGrantee == ReadOnlyGrantee.Subject &&
-				_securityManager.CurrentUser.Identity.Identifier == subject.Identifier) ||
-				(_options.ReadOnlyGrantee == ReadOnlyGrantee.AllowedUsers &&
-				GetEffectivePermission(
-					new Noun()
-					{
-						Identifier = _securityManager.CurrentUser.Identity.Identifier, Type = SubjectTypes.User
-					},
-					AdministrativeActions.ViewPermissions,
-					null,
-					new Dictionary<string, string>()
-					{
-						[AdministrativeAccessControlContextKeys.SubjectType] = subject.Type,
-						[AdministrativeAccessControlContextKeys.SubjectIdentifier] = subject.Identifier,
-						[AdministrativeAccessControlContextKeys.ObjectType] = @object.Type,
-						[AdministrativeAccessControlContextKeys.ObjectIdentifier] = @object.Identifier,
-						[AdministrativeAccessControlContextKeys.Purpose] = purpose,
-						[AdministrativeAccessControlContextKeys.Domain] = domain
-					},
-					"ADMINISTRATION",
-					"_AUTHORIZED_") == Permission.Allowed
-				);
-
-			if(!allowed)
+			Dictionary<string, string> authorizationContext = new Dictionary<string, string>()
 			{
-				throw new NotAuthorized();
-			}
+				[AdministrativeAccessControlContextKeys.SubjectType] = subject?.Type,
+				[AdministrativeAccessControlContextKeys.SubjectIdentifier] = subject?.Identifier,
+				[AdministrativeAccessControlContextKeys.ObjectType] = @object.Type,
+				[AdministrativeAccessControlContextKeys.ObjectIdentifier] = @object.Identifier,
+				[AdministrativeAccessControlContextKeys.Purpose] = purpose,
+				[AdministrativeAccessControlContextKeys.Domain] = domain
+			};
+
+			Noun authorizationSubject = new Noun()
+			{
+				Identifier = _securityManager.CurrentUser.Identity.Identifier, Type = SubjectTypes.User
+			};
 
 			return _dataStoreProvider.Execute(
 					(dataSession, ctx) =>
 					{
+						bool allowed =
+							ctx.@this._options.AdministrativeActionGrantees == AdministrativeActionGrantees.AllUsers ||
+							ctx.@this.UserIsAdministrator() ||
+							( // subjects are allowed to view their own permissions and caller is 'subject'
+								ctx.subject != null &&
+								ctx.subject.Type == SubjectTypes.User &&
+								ctx.@this._options.AdministrativeActionGrantees ==
+								AdministrativeActionGrantees.Subject &&
+								!string.IsNullOrEmpty(ctx.subject.Identifier) &&
+								ctx.@this._securityManager.CurrentUser.Identity.Identifier == ctx.subject.Identifier
+							) ||
+							( // Only users with permissions are allowed to view permissions
+								ctx.@this._options.AdministrativeActionGrantees ==
+								AdministrativeActionGrantees.AllowedUsers &&
+								(
+									ctx.@this.GetEffectivePermission(
+										ctx.authorizationSubject,
+										AdministrativeActions.ViewPermissions,
+										ctx.@object,
+										ctx.authorizationContext,
+										ctx.purpose,
+										ctx.domain, dataSession) == Permission.Allowed
+								)
+							);
+
+						if(!allowed)
+						{
+							throw new NotAuthorized();
+						}
+
 						return dataSession.GetAccessControlEntries(ctx.subject, string.Empty, ctx.@object, ctx.purpose,
 																	ctx.domain);
 					},
-					new {subject, @object, purpose, domain},
+					new {@this = this, subject, @object, purpose, domain, authorizationContext, authorizationSubject},
 					TransactionScopeOption.Required,
 					new TransactionOptions()
 					{
@@ -159,12 +262,60 @@ namespace Authorized
 		public void SetAccessControlEntries(Noun subject, string purpose, Noun @object, string domain,
 											IEnumerable<AccessControlEntry> entries)
 		{
-			bool allowed = UserIsAdministrator();
+			if(subject != null && string.IsNullOrWhiteSpace(subject.Type))
+				throw new ArgumentException(ExceptionMessages.SUBJECT_TYPE_MUST_BE_SPECIFIED, nameof(subject));
 
-			if(allowed)
+			if(@object == null) throw new ArgumentNullException(nameof(@object));
+			if(domain == null) throw new ArgumentNullException(nameof(domain));
+
+			Dictionary<string, string> authorizationContext = new Dictionary<string, string>()
 			{
-				
-			}
+				[AdministrativeAccessControlContextKeys.SubjectType] = subject?.Type,
+				[AdministrativeAccessControlContextKeys.SubjectIdentifier] = subject?.Identifier,
+				[AdministrativeAccessControlContextKeys.ObjectType] = @object.Type,
+				[AdministrativeAccessControlContextKeys.ObjectIdentifier] = @object.Identifier,
+				[AdministrativeAccessControlContextKeys.Purpose] = purpose,
+				[AdministrativeAccessControlContextKeys.Domain] = domain
+			};
+
+			Noun authorizationSubject = new Noun()
+			{
+				Identifier = _securityManager.CurrentUser.Identity.Identifier, Type = SubjectTypes.User
+			};
+
+			_dataStoreProvider.Perform(
+					(dataSession, ctx) =>
+					{
+						bool allowed =
+							ctx.@this.UserIsAdministrator() ||
+							( // users with permissions are allowed to manage permissions
+								ctx.@this._options.AdministrativeActionGrantees == AdministrativeActionGrantees.AllowedUsers &&
+								(
+									ctx.@this.GetEffectivePermission(
+										ctx.authorizationSubject,
+										AdministrativeActions.ManagePermissions,
+										ctx.@object,
+										ctx.authorizationContext,
+										ctx.purpose,
+										ctx.domain,
+										dataSession) == Permission.Allowed
+								)
+							);
+
+						if(!allowed)
+						{
+							throw new NotAuthorized();
+						}
+						
+						// todo: set access control entries
+					},
+					new {@this = this, subject, @object, purpose, domain, authorizationContext, authorizationSubject},
+					TransactionScopeOption.Required,
+					new TransactionOptions()
+					{
+						IsolationLevel = IsolationLevel.ReadCommitted
+					}
+				);
 		}
 	}
 }

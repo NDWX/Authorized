@@ -5,11 +5,13 @@ namespace Authorized
 {
 	public class AccessControlEntry
 	{
+		/*
 		[DataMember(IsRequired = true)]
 		public string Domain { get; set; }
 		
 		[DataMember(IsRequired = true)]
 		public string Purpose { get; set; }
+		*/
 
 		[DataMember(IsRequired = true)]
 		public Noun Subject { get; set; }
@@ -17,7 +19,7 @@ namespace Authorized
 		[DataMember(IsRequired = true)]
 		public string Action { get; set; }
 		
-		public Noun Object { get; set; }
+		// public Noun Object { get; set; }
 		
 		/// <summary>
 		/// Exact match

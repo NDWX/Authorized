@@ -4,6 +4,6 @@
 	{
 		public static readonly string
 			ViewPermissions = "VIEW_ACCESS_CONTROL_ENTRIES",
-			SetPermissions = "SET_ACCESS_CONTROL_ENTRIES";
+			ManagePermissions = "MANAGE_ACCESS_CONTROL_ENTRIES";
 	}
 }
