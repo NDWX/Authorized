@@ -14,19 +14,23 @@ namespace Authorized
 		private readonly ISecurityManager _securityManager;
 		private readonly IApplicationData<IAuthorizedDataStore> _dataStoreProvider;
 		private readonly Options _options;
+		private readonly IdentifierGenerator _identifierGenerator;
 
-		public Authorized(Options options, ISecurityManager securityManager, IApplicationData<IAuthorizedDataStore> dataStoreProvider)
+		public Authorized(Options options, IdentifierGenerator identifierGenerator, ISecurityManager securityManager,
+						IApplicationData<IAuthorizedDataStore> dataStoreProvider)
 		{
 			_securityManager = securityManager ?? throw new ArgumentNullException(nameof(securityManager));
 			_dataStoreProvider = dataStoreProvider ?? throw new ArgumentNullException(nameof(dataStoreProvider));
 			_options = options ?? throw new ArgumentNullException(nameof(options));
+			_identifierGenerator = identifierGenerator;
 		}
 
 		private Permission GetPermission(Noun subject, string action, Noun @object,
-												IDictionary<string, string> context, string purpose,
-												string domain, IAuthorizedDataStore dataStore)
+										IDictionary<string, string> context, string purpose,
+										string domain, IAuthorizedDataStore dataStore)
 		{
-			IEnumerable<AccessControlEntry> accessControlEntries = dataStore.GetAccessControlEntries(subject, action, @object, purpose, domain);
+			IEnumerable<AccessControlEntry> accessControlEntries =
+				dataStore.GetAccessControlEntries(subject, action, @object, purpose, domain);
 
 			if(!(accessControlEntries?.Any() ?? false))
 				return Permission.None;
@@ -52,7 +56,7 @@ namespace Authorized
 				if(accessControlEntry.Permission == Permission.Denied)
 					return Permission.Denied;
 
-				if( permission < accessControlEntry.Permission)
+				if(permission < accessControlEntry.Permission)
 					permission = accessControlEntry.Permission;
 			}
 
@@ -116,8 +120,9 @@ namespace Authorized
 			return _dataStoreProvider.Execute(
 					(dataSession, ctx) =>
 					{
-						if(ctx.@this.GetEffectivePermission(ctx.subject, ctx.action, ctx.@object, ctx.context, ctx.purpose,
-												ctx.domain, dataSession) ==
+						if(ctx.@this.GetEffectivePermission(ctx.subject, ctx.action, ctx.@object, ctx.context,
+															ctx.purpose,
+															ctx.domain, dataSession) ==
 							Permission.Denied)
 							return Permission.Denied;
 
@@ -159,8 +164,9 @@ namespace Authorized
 			return _dataStoreProvider.Execute(
 					(dataSession, ctx) =>
 					{
-						if(ctx.@this.GetEffectivePermission(ctx.subject, ctx.action, ctx.@object, ctx.context, ctx.purpose,
-												ctx.domain, dataSession) == Permission.Denied)
+						if(ctx.@this.GetEffectivePermission(ctx.subject, ctx.action, ctx.@object, ctx.context,
+															ctx.purpose,
+															ctx.domain, dataSession) == Permission.Denied)
 							return Permission.Denied;
 
 						foreach(string role in ctx.effectiveRoles)
@@ -259,7 +265,8 @@ namespace Authorized
 				);
 		}
 
-		public void SetAccessControlEntries(Noun subject, string purpose, Noun @object, string domain,
+		public void SetAccessControlEntries(AccessControlEntriesModification action, Noun subject, string purpose,
+											Noun @object, string domain,
 											IEnumerable<AccessControlEntry> entries)
 		{
 			if(subject != null && string.IsNullOrWhiteSpace(subject.Type))
@@ -289,7 +296,8 @@ namespace Authorized
 						bool allowed =
 							ctx.@this.UserIsAdministrator() ||
 							( // users with permissions are allowed to manage permissions
-								ctx.@this._options.AdministrativeActionGrantees == AdministrativeActionGrantees.AllowedUsers &&
+								ctx.@this._options.AdministrativeActionGrantees ==
+								AdministrativeActionGrantees.AllowedUsers &&
 								(
 									ctx.@this.GetEffectivePermission(
 										ctx.authorizationSubject,
@@ -306,10 +314,60 @@ namespace Authorized
 						{
 							throw new NotAuthorized();
 						}
-						
+
 						// todo: set access control entries
+
+						IEnumerable<AccessControlEntry> existingEntries =
+							dataSession.GetAccessControlEntries(ctx.subject, null, ctx.@object, ctx.purpose,
+																ctx.domain);
+
+						void InsertEntries(IAuthorizedDataStore dataStore, IEnumerable<AccessControlEntry> __entries, string __domain, string __purpose, Noun __object, IdentifierGenerator __idGenerator)
+						{
+							foreach(var entry in __entries)
+							{
+								entry.Identifier = __idGenerator.GetNext();
+
+								if(dataStore.AccessControlEntryExists(entry.Identifier))
+									throw new Exception("Identifier generator returned duplicated key.");
+
+								dataStore.InsertAccessControlEntry(__domain, __purpose, __object, entry);
+							}
+						}
+
+						switch(ctx.action)
+						{
+							case AccessControlEntriesModification.Replace:
+
+								foreach(var entry in existingEntries)
+								{
+									dataSession.DeleteAccessControlEntry(entry.Identifier);
+								}
+
+								InsertEntries(dataSession, ctx.entries, ctx.domain, ctx.purpose, ctx.@object, ctx.@this._identifierGenerator);
+
+								break;
+
+							case AccessControlEntriesModification.Append:
+
+								InsertEntries(dataSession, ctx.entries, ctx.domain, ctx.purpose, ctx.@object, ctx.@this._identifierGenerator);
+
+								break;
+
+							case AccessControlEntriesModification.Remove:
+
+								foreach(var entry in ctx.entries)
+								{
+									dataSession.DeleteAccessControlEntry(entry.Identifier);
+								}
+
+								break;
+						}
 					},
-					new {@this = this, subject, @object, purpose, domain, authorizationContext, authorizationSubject},
+					new
+					{
+						@this = this, action, subject, @object, purpose, domain, entries, authorizationContext,
+						authorizationSubject
+					},
 					TransactionScopeOption.Required,
 					new TransactionOptions()
 					{

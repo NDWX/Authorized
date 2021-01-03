@@ -3,15 +3,13 @@
 namespace Authorized
 {
 	[DataContract]
-	public enum Permission
+	public enum AccessControlEntriesModification
 	{
 		[EnumMember]
-		None = -1,
+		Append = 1,
 		[EnumMember]
-		Denied = 0,
+		Replace = 2,
 		[EnumMember]
-		Allowed = 1,
-		[EnumMember]
-		Grant = 3
+		Remove = 4
 	}
 }
