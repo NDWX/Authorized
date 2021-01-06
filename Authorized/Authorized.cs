@@ -26,7 +26,7 @@ namespace Authorized
 		}
 
 		private Permission GetPermission(Noun subject, string action, Noun @object,
-										IDictionary<string, string> context, string purpose,
+										IDictionary<string, IEnumerable<string>> context, string purpose,
 										string domain, IAuthorizedDataStore dataStore)
 		{
 			IEnumerable<AccessControlEntry> accessControlEntries =
@@ -64,7 +64,7 @@ namespace Authorized
 		}
 
 		private Permission GetEffectivePermission(Noun subject, string action, Noun @object,
-												IDictionary<string, string> context, string purpose,
+												IDictionary<string, IEnumerable<string>> context, string purpose,
 												string domain, IAuthorizedDataStore dataSession)
 		{
 			Permission permission = GetPermission(subject, action, @object, context, purpose, domain, dataSession);
@@ -96,7 +96,7 @@ namespace Authorized
 			return Permission.Denied;
 		}
 
-		public Permission IsAuthorized(Noun subject, string action, Noun @object, IDictionary<string, string> context,
+		public Permission IsAuthorized(Noun subject, string action, Noun @object, IDictionary<string, IEnumerable<string>> context,
 										string purpose, string domain)
 		{
 			if(string.IsNullOrWhiteSpace(subject.Type))
@@ -138,7 +138,7 @@ namespace Authorized
 		}
 
 		public Permission IsAuthorized(Noun subject, IEnumerable<string> effectiveRoles, string action, Noun @object,
-										IDictionary<string, string> context,
+										IDictionary<string, IEnumerable<string>> context,
 										string purpose, string domain)
 		{
 			if(string.IsNullOrWhiteSpace(subject.Type))
@@ -205,14 +205,14 @@ namespace Authorized
 			if(@object == null) throw new ArgumentNullException(nameof(@object));
 			if(domain == null) throw new ArgumentNullException(nameof(domain));
 
-			Dictionary<string, string> authorizationContext = new Dictionary<string, string>()
+			Dictionary<string, IEnumerable<string>> authorizationContext = new Dictionary<string, IEnumerable<string>>()
 			{
-				[AdministrativeAccessControlContextKeys.SubjectType] = subject?.Type,
-				[AdministrativeAccessControlContextKeys.SubjectIdentifier] = subject?.Identifier,
-				[AdministrativeAccessControlContextKeys.ObjectType] = @object.Type,
-				[AdministrativeAccessControlContextKeys.ObjectIdentifier] = @object.Identifier,
-				[AdministrativeAccessControlContextKeys.Purpose] = purpose,
-				[AdministrativeAccessControlContextKeys.Domain] = domain
+				[AdministrativeAccessControlContextKeys.SubjectType] = new [] {subject?.Type},
+				[AdministrativeAccessControlContextKeys.SubjectIdentifier] = new [] {subject?.Identifier},
+				[AdministrativeAccessControlContextKeys.ObjectType] = new [] {@object.Type},
+				[AdministrativeAccessControlContextKeys.ObjectIdentifier] = new [] {@object.Identifier},
+				[AdministrativeAccessControlContextKeys.Purpose] = new [] {purpose},
+				[AdministrativeAccessControlContextKeys.Domain] = new [] {domain}
 			};
 
 			Noun authorizationSubject = new Noun()
@@ -275,14 +275,14 @@ namespace Authorized
 			if(@object == null) throw new ArgumentNullException(nameof(@object));
 			if(domain == null) throw new ArgumentNullException(nameof(domain));
 
-			Dictionary<string, string> authorizationContext = new Dictionary<string, string>()
+			Dictionary<string, IEnumerable<string>> authorizationContext = new Dictionary<string, IEnumerable<string>>()
 			{
-				[AdministrativeAccessControlContextKeys.SubjectType] = subject?.Type,
-				[AdministrativeAccessControlContextKeys.SubjectIdentifier] = subject?.Identifier,
-				[AdministrativeAccessControlContextKeys.ObjectType] = @object.Type,
-				[AdministrativeAccessControlContextKeys.ObjectIdentifier] = @object.Identifier,
-				[AdministrativeAccessControlContextKeys.Purpose] = purpose,
-				[AdministrativeAccessControlContextKeys.Domain] = domain
+				[AdministrativeAccessControlContextKeys.SubjectType] = new[] {subject?.Type},
+				[AdministrativeAccessControlContextKeys.SubjectIdentifier] = new[] {subject?.Identifier},
+				[AdministrativeAccessControlContextKeys.ObjectType] = new[] {@object.Type},
+				[AdministrativeAccessControlContextKeys.ObjectIdentifier] = new[] {@object.Identifier},
+				[AdministrativeAccessControlContextKeys.Purpose] = new[] {purpose},
+				[AdministrativeAccessControlContextKeys.Domain] = new[] {domain}
 			};
 
 			Noun authorizationSubject = new Noun()
@@ -312,8 +312,23 @@ namespace Authorized
 
 						if(!allowed)
 						{
-							throw new NotAuthorized();
+							bool hasGrantPermissions = true;
+
+							foreach(var entry in ctx.entries)
+							{
+								hasGrantPermissions =
+									hasGrantPermissions &&
+									entry.Permission == Permission.Allowed &&
+									ctx.@this.GetPermission(ctx.authorizationSubject, entry.Action, ctx.@object,
+															entry.Context.ToDictionary(x => x.Key, x => x.Values),
+															ctx.purpose, ctx.domain, dataSession) == Permission.Grant;
+							}
+
+							allowed = hasGrantPermissions;
 						}
+
+						if(!allowed)
+							throw new NotAuthorized();
 
 						// todo: set access control entries
 
@@ -321,7 +336,9 @@ namespace Authorized
 							dataSession.GetAccessControlEntries(ctx.subject, null, ctx.@object, ctx.purpose,
 																ctx.domain);
 
-						void InsertEntries(IAuthorizedDataStore dataStore, IEnumerable<AccessControlEntry> __entries, string __domain, string __purpose, Noun __object, IdentifierGenerator __idGenerator)
+						void InsertEntries(IAuthorizedDataStore dataStore, IEnumerable<AccessControlEntry> __entries,
+											string __domain, string __purpose, Noun __object,
+											IdentifierGenerator __idGenerator)
 						{
 							foreach(var entry in __entries)
 							{
@@ -343,13 +360,15 @@ namespace Authorized
 									dataSession.DeleteAccessControlEntry(entry.Identifier);
 								}
 
-								InsertEntries(dataSession, ctx.entries, ctx.domain, ctx.purpose, ctx.@object, ctx.@this._identifierGenerator);
+								InsertEntries(dataSession, ctx.entries, ctx.domain, ctx.purpose, ctx.@object,
+											ctx.@this._identifierGenerator);
 
 								break;
 
 							case AccessControlEntriesModification.Append:
 
-								InsertEntries(dataSession, ctx.entries, ctx.domain, ctx.purpose, ctx.@object, ctx.@this._identifierGenerator);
+								InsertEntries(dataSession, ctx.entries, ctx.domain, ctx.purpose, ctx.@object,
+											ctx.@this._identifierGenerator);
 
 								break;
 

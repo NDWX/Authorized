@@ -1,27 +1,29 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Authorized.Extensions
 {
 	public static class AccessControlContextExtensions
 	{
-		public static bool Evaluate(this AccessControlContextEntry context, string value)
+		public static bool Evaluate(this AccessControlContextEntry context, IEnumerable<string> values)
 		{
 			switch(context.MatchType)
 			{
 				case AccessControlContextMatchType.Equals:
-					return context.Values.FirstOrDefault() == value;
+					return values.Count() == 1 && context.Values.FirstOrDefault() == values.First();
 
 				case AccessControlContextMatchType.In:
-					return context.Values.Contains(value);
+					IEnumerable<string> distinctValues = values.Distinct();
+					return distinctValues.Intersect(context.Values.Distinct()).Count() == distinctValues.Count();
 
 				case AccessControlContextMatchType.Like:
-					return value.Contains(context.Values.First());
+					return values.All(x => x.Contains(context.Values.First()));
 
 				case AccessControlContextMatchType.NotEqual:
-					return context.Values.FirstOrDefault() != value;
+					return !values.Contains(context.Values.FirstOrDefault());
 
 				case AccessControlContextMatchType.NotIn:
-					return !context.Values.Contains(value);
+					return !values.Distinct().Intersect(context.Values.Distinct()).Any();
 			}
 			
 			return false;

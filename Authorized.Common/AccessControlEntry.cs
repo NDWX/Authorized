@@ -27,6 +27,7 @@ namespace Authorized
 		/// <summary>
 		/// Exact match
 		/// </summary>
+		[DataMember(IsRequired = true)]
 		public IEnumerable<AccessControlContextEntry> Context { get; set; }
 
 		[DataMember(IsRequired = true)]
