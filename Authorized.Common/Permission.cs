@@ -1,17 +1,19 @@
-﻿using System.Runtime.Serialization;
+﻿using System;
+using System.Runtime.Serialization;
 
 namespace Authorized
 {
 	[DataContract]
+	[Flags]
 	public enum Permission
 	{
 		[EnumMember]
-		None = -1,
+		None = 0,
 		[EnumMember]
-		Denied = 0,
+		Denied = 1,
 		[EnumMember]
-		Allowed = 1,
+		Allowed = 2,
 		[EnumMember]
-		Grant = 3
+		Grant = 6
 	}
 }

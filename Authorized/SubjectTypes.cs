@@ -1,4 +1,4 @@
-﻿namespace Authorized
+﻿	namespace Authorized
 {
 	public static class SubjectTypes
 	{

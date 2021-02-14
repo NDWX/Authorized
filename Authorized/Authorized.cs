@@ -67,24 +67,33 @@ namespace Authorized
 												IDictionary<string, IEnumerable<string>> context, string purpose,
 												string domain, IAuthorizedDataStore dataSession)
 		{
-			Permission permission = GetPermission(subject, action, @object, context, purpose, domain, dataSession);
+			Noun obj = new Noun()
+			{
+				Type = @object.Type,
+				Identifier = @object.Identifier
+			};
+			
+			// check authorization for specified parameters
+			Permission permission = GetPermission(subject, action, obj, context, purpose, domain, dataSession);
 
 			if(permission != Permission.None)
 				return permission;
 
-			if(@object != null && !string.IsNullOrWhiteSpace(@object.Type))
+			if(obj != null && !string.IsNullOrWhiteSpace(obj.Type))
 			{
-				if(!string.IsNullOrWhiteSpace(@object.Identifier))
+				// check authorization for object type
+				if(!string.IsNullOrWhiteSpace(obj.Identifier))
 				{
-					@object.Identifier = string.Empty;
+					obj.Identifier = string.Empty;
 
 					permission =
-						GetPermission(subject, action, @object, context, purpose, domain, dataSession);
+						GetPermission(subject, action, obj, context, purpose, domain, dataSession);
 
 					if(permission != Permission.None)
 						return permission;
 				}
 
+				// check authorization for action
 				permission =
 					GetPermission(subject, action, null, context, purpose, domain, dataSession);
 
@@ -93,7 +102,7 @@ namespace Authorized
 
 			}
 
-			return Permission.Denied;
+			return Permission.None;
 		}
 
 		public Permission IsAuthorized(Noun subject, string action, Noun @object, IDictionary<string, IEnumerable<string>> context,
@@ -123,10 +132,10 @@ namespace Authorized
 						if(ctx.@this.GetEffectivePermission(ctx.subject, ctx.action, ctx.@object, ctx.context,
 															ctx.purpose,
 															ctx.domain, dataSession) ==
-							Permission.Denied)
-							return Permission.Denied;
+							Permission.Allowed)
+							return Permission.Allowed;
 
-						return Permission.Allowed;
+						return Permission.Denied;
 					},
 					new {@this = this, subject, action, @object, context, purpose, domain},
 					TransactionScopeOption.Required,
@@ -164,22 +173,30 @@ namespace Authorized
 			return _dataStoreProvider.Execute(
 					(dataSession, ctx) =>
 					{
-						if(ctx.@this.GetEffectivePermission(ctx.subject, ctx.action, ctx.@object, ctx.context,
-															ctx.purpose,
-															ctx.domain, dataSession) == Permission.Denied)
+						// check authorization for user
+						Permission permission = ctx.@this.GetEffectivePermission(ctx.subject, ctx.action, ctx.@object, ctx.context,
+							ctx.purpose,
+							ctx.domain, dataSession);
+						
+						if(permission == Permission.Denied)
 							return Permission.Denied;
 
+						Permission effectivePermission = permission;
+						
+						// check authorization for each role
 						foreach(string role in ctx.effectiveRoles)
 						{
-							if(ctx.@this.GetEffectivePermission(
-									new Noun() {Identifier = role, Type = SubjectTypes.Group},
-									ctx.action, ctx.@object, ctx.context, ctx.purpose, ctx.domain, dataSession) ==
-								Permission.Denied)
-
+							permission = ctx.@this.GetEffectivePermission(
+								new Noun() {Identifier = role, Type = SubjectTypes.Group},
+								ctx.action, ctx.@object, ctx.context, ctx.purpose, ctx.domain, dataSession);
+							
+							if(permission == Permission.Denied)
 								return Permission.Denied;
+
+							effectivePermission |= permission;
 						}
 
-						return Permission.Allowed;
+						return (effectivePermission & Permission.Allowed) == Permission.Allowed? Permission.Allowed : Permission.Denied;
 					},
 					new {@this = this, subject, effectiveRoles, action, @object, context, purpose, domain},
 					TransactionScopeOption.Required,
