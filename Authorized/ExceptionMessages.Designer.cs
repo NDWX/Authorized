@@ -61,6 +61,33 @@ namespace Authorized {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Access control entry subject identifier must be specified.
+        /// </summary>
+        internal static string ACE_SUBJECT_IDENTIFIER_MUST_BE_SPECIFIED {
+            get {
+                return ResourceManager.GetString("ACE_SUBJECT_IDENTIFIER_MUST_BE_SPECIFIED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Access control entry subject must be specified..
+        /// </summary>
+        internal static string ACE_SUBJECT_MUST_BE_SPECIFIED {
+            get {
+                return ResourceManager.GetString("ACE_SUBJECT_MUST_BE_SPECIFIED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Access control entry subject type must be specified.
+        /// </summary>
+        internal static string ACE_SUBJECT_TYPE_MUST_BE_SPECIFIED {
+            get {
+                return ResourceManager.GetString("ACE_SUBJECT_TYPE_MUST_BE_SPECIFIED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Object identifier must be specified.
         /// </summary>
         internal static string OBJECT_IDENTIFIER_MUST_BE_SPECIFIED {

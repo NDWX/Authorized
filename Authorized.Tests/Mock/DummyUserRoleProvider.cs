@@ -13,6 +13,8 @@ namespace Authorized.Tests
 		{
 			_roles.Add(_administrator, new[] {"USERS", "ADMINISTRATORS"});
 			_roles.Add(_user, new[] {"USERS"});
+			_roles.Add("poweruser", new[] {"POWERUSERS", "ADMINISTRATORS"});
+			_roles.Add("sysadmin", new[] {"SYSADMINS"});
 		}
 		
 		public bool UserIsInRole(string user, string role)

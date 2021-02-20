@@ -8,7 +8,7 @@ namespace Authorized.Data
 		IEnumerable<AccessControlEntry> GetAccessControlEntries(Noun subject, string action, Noun @object,
 																string purpose, string domain);
 
-		void DeleteAccessControlEntry(string identifier);
+		void DeleteAccessControlEntries(Noun @object, Noun subject);
 
 		bool AccessControlEntryExists(string identifier);
 

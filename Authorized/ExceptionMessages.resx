@@ -33,4 +33,13 @@
     <data name="VALUE_CANNOT_BE_NULL_OR_WHITESPACE" xml:space="preserve">
         <value>Value cannot be null or whitespace.</value>
     </data>
+    <data name="ACE_SUBJECT_IDENTIFIER_MUST_BE_SPECIFIED" xml:space="preserve">
+        <value>Access control entry subject identifier must be specified</value>
+    </data>
+    <data name="ACE_SUBJECT_TYPE_MUST_BE_SPECIFIED" xml:space="preserve">
+        <value>Access control entry subject type must be specified</value>
+    </data>
+    <data name="ACE_SUBJECT_MUST_BE_SPECIFIED" xml:space="preserve">
+        <value>Access control entry subject must be specified.</value>
+    </data>
 </root>

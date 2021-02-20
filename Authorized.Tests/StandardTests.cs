@@ -6,24 +6,13 @@ using Xunit.Extensions.Ordering;
 
 namespace Authorized.Tests
 {
-	public class AdministratorTestContext
-	{
-		public IAuthorized Authorized { get; }
-
-		public AdministratorTestContext()
-		{
-			Authorized = new Authorized(new Options() { }, new DefaultIdentifierGenerator(),
-										new DummySecurityManager(), new MemoryDataProvider());
-		}
-	}
-
 	[TestCaseOrderer("Xunit.Extensions.Ordering.TestCaseOrderer", "Xunit.Extensions.Ordering")]
 	[SuppressMessage("ReSharper", "HeapView.DelegateAllocation")]
-	public class AdministratorTests : IClassFixture<AdministratorTestContext>
+	public class StandardTests : IClassFixture<StandardTestContext>
 	{
-		public AdministratorTestContext TestContext { get; }
+		internal StandardTestContext TestContext { get; }
 
-		public AdministratorTests(AdministratorTestContext testContext)
+		public StandardTests(StandardTestContext testContext)
 		{
 			TestContext = testContext;
 		}
@@ -35,27 +24,26 @@ namespace Authorized.Tests
 			Assert.Equal(
 					Permission.Denied,
 					TestContext.Authorized.IsAuthorized(
-						new Noun()
+							new Noun()
 							{
 
 								Type = SubjectTypes.User,
 								Identifier = "user"
 							},
-						AdministrativeActions.ManagePermissions,
-						new Noun()
+							AdministrativeActions.ManagePermissions,
+							new Noun()
 							{
 								Type = "OBJECT",
 								Identifier = "DEFAULT"
 							},
-						new Dictionary<string, IEnumerable<string>>(),
-						string.Empty,
-						string.Empty
+							new Dictionary<string, IEnumerable<string>>(),
+							string.Empty,
+							string.Empty
 						)
 				);
 		}
 
 		[Fact]
-		[Order(1)]
 		public void UserWithPermissionShouldBeAuthorized()
 		{
 			Assert.Equal(
@@ -80,7 +68,6 @@ namespace Authorized.Tests
 		}
 
 		[Fact]
-		[Order(2)]
 		public void UnknownUserShouldNotBeGrantedPermission()
 		{
 			Assert.Equal(
@@ -105,7 +92,6 @@ namespace Authorized.Tests
 		}
 
 		[Fact]
-		[Order(3)]
 		public void UserWithAuthorizedRoleShouldBeAuthorized()
 		{
 			Assert.Equal(
@@ -116,7 +102,7 @@ namespace Authorized.Tests
 								Type = SubjectTypes.User,
 								Identifier = "unknown"
 							},
-							new []{"USERS"},
+							new[] {"USERS"},
 							AdministrativeActions.ViewPermissions,
 							new Noun()
 							{
@@ -131,7 +117,6 @@ namespace Authorized.Tests
 		}
 
 		[Fact]
-		[Order(3)]
 		public void UserWithUnknownRoleShouldNotBeAuthorized()
 		{
 			Assert.Equal(
@@ -142,7 +127,7 @@ namespace Authorized.Tests
 								Type = SubjectTypes.User,
 								Identifier = "user"
 							},
-							new []{"UNKNOWN"},
+							new[] {"UNKNOWN"},
 							AdministrativeActions.ManagePermissions,
 							new Noun()
 							{
@@ -153,6 +138,98 @@ namespace Authorized.Tests
 							string.Empty,
 							string.Empty
 						)
+				);
+		}
+
+		[Fact]
+		public void DefaultAdminsitratorGroupUserShouldBeAllowedToManagePermissions()
+		{
+			TestContext.SetCurrentUser("administrator");
+
+			TestContext.Authorized.SetAccessControlEntries(
+					string.Empty,
+					new Noun()
+					{
+						Type = "OBJECT",
+						Identifier = "DEFAULT",
+					},
+					string.Empty,
+					new[]
+					{
+						new AccessControlEntry()
+						{
+							Action = "VIEW",
+							Permission = Permission.Allowed,
+							Subject = new Noun()
+							{
+								Type = SubjectTypes.User,
+								Identifier = "user"
+							}
+						}
+					}
+				);
+		}
+
+		[Fact]
+		public void MembersOfPermittedGroupShouldBeAllowedToManagePermissions()
+		{
+			TestContext.SetCurrentUser("sysadmin");
+
+			TestContext.Authorized.SetAccessControlEntries(
+					string.Empty,
+					new Noun()
+					{
+						Type = "OBJECT",
+						Identifier = "DEFAULT",
+					},
+					string.Empty,
+					new[]
+					{
+						new AccessControlEntry()
+						{
+							Action = "VIEW",
+							Permission = Permission.Allowed,
+							Subject = new Noun()
+							{
+								Type = SubjectTypes.User,
+								Identifier = "user"
+							},
+							Context = new AccessControlContextEntry[] { }
+						}
+					}
+				);
+		}
+
+		[Fact]
+		public void MembersOfRestrictedGroupShouldNotBeAllowedToManagePermissions()
+		{
+			TestContext.SetCurrentUser("poweruser");
+
+			Assert.Throws<NotAuthorized>(() =>
+					{
+						TestContext.Authorized.SetAccessControlEntries(
+								string.Empty,
+								new Noun()
+								{
+									Type = "OBJECT",
+									Identifier = "DEFAULT",
+								},
+								string.Empty,
+								new[]
+								{
+									new AccessControlEntry()
+									{
+										Action = "VIEW",
+										Permission = Permission.Allowed,
+										Subject = new Noun()
+										{
+											Type = SubjectTypes.User,
+											Identifier = "user"
+										}
+									}
+								}
+							);
+					}
 				);
 		}
 	}

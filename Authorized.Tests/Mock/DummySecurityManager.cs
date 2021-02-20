@@ -5,13 +5,20 @@ namespace Authorized.Tests
 {
 	class DummySecurityManager : ISecurityManager
 	{
+		public DummySecurityManager()
+		{
+			User = "testuser";
+		}
+		
 		public IUser CurrentUser =>
 			new User(
 				new BasicPrincipalIdentity(
-					"TestUser", "Test User", true, string.Empty,
+					User, "Test User", true, string.Empty,
 					new Dictionary<string, string>() { }
 				), 
 				new DummyUserRoleProvider(true),
 				null);
+		
+		public string User { get; set; }
 	}
 }

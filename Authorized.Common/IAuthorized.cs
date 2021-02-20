@@ -14,7 +14,7 @@ namespace Authorized
 		IEnumerable<AccessControlEntry> GetAccessControlEntries(Noun subject, string purpose, Noun @object,
 																string domain);
 
-		void SetAccessControlEntries(AccessControlEntriesModification action, Noun subject, string purpose, Noun @object,
-									string domain, IEnumerable<AccessControlEntry> entries);
+		void SetAccessControlEntries(string purpose, Noun @object,
+									string domain, IEnumerable<AccessControlEntry> entries, Noun subject = null);
 	}
 }

@@ -89,6 +89,84 @@ namespace Authorized.Tests
 						Permission = Permission.Allowed
 					}
 				},
+				new ObjectAccessControlEntry()
+				{
+					Identifier = "3",
+					Object = new AccessControlledObject()
+					{
+						Domain = string.Empty,
+						Purpose = string.Empty,
+						Object = new Noun()
+						{
+							Type = "OBJECT",
+							Identifier = "DEFAULT"
+						}
+					},
+					AccessControlEntry = new AccessControlEntry()
+					{
+						Identifier = "3",
+						Subject = new Noun()
+						{
+							Type = SubjectTypes.User,
+							Identifier = "adminuser"
+						},
+						Action = AdministrativeActions.ManagePermissions,
+						Context = new List<AccessControlContextEntry>() {},
+						Permission = Permission.Allowed
+					}
+				},
+				new ObjectAccessControlEntry()
+				{
+					Identifier = "4",
+					Object = new AccessControlledObject()
+					{
+						Domain = string.Empty,
+						Purpose = string.Empty,
+						Object = new Noun()
+						{
+							Type = "OBJECT",
+							Identifier = "DEFAULT"
+						}
+					},
+					AccessControlEntry = new AccessControlEntry()
+					{
+						Identifier = "4",
+						Subject = new Noun()
+						{
+							Type = SubjectTypes.Group,
+							Identifier = "POWERUSERS"
+						},
+						Action = AdministrativeActions.ManagePermissions,
+						Context = new List<AccessControlContextEntry>() {},
+						Permission = Permission.Denied
+					}
+				},
+				new ObjectAccessControlEntry()
+				{
+					Identifier = "5",
+					Object = new AccessControlledObject()
+					{
+						Domain = string.Empty,
+						Purpose = string.Empty,
+						Object = new Noun()
+						{
+							Type = "OBJECT",
+							Identifier = "DEFAULT"
+						}
+					},
+					AccessControlEntry = new AccessControlEntry()
+					{
+						Identifier = "5",
+						Subject = new Noun()
+						{
+							Type = SubjectTypes.Group,
+							Identifier = "SYSADMINS"
+						},
+						Action = AdministrativeActions.ManagePermissions,
+						Context = new List<AccessControlContextEntry>() {},
+						Permission = Permission.Allowed
+					}
+				}
 			};
 
 		public void Dispose()
@@ -125,7 +203,7 @@ namespace Authorized.Tests
 										.Select(x => x.AccessControlEntry);
 		}
 
-		public void DeleteAccessControlEntry(string identifier)
+		public void DeleteAccessControlEntries(Noun @object, Noun subject)
 		{
 		}
 
