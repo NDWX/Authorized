@@ -9,7 +9,7 @@ namespace Authorized.Tests
 		private const string _user = "user", _administrator = "administrator";
 		private readonly Dictionary<string, ICollection<string>> _roles = new Dictionary<string, ICollection<string>>();
 
-		public DummyUserRoleProvider(bool asAdministrator = false)
+		public DummyUserRoleProvider()
 		{
 			_roles.Add(_administrator, new[] {"USERS", "ADMINISTRATORS"});
 			_roles.Add(_user, new[] {"USERS"});

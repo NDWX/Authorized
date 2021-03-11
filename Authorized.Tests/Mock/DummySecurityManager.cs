@@ -14,9 +14,9 @@ namespace Authorized.Tests
 			new User(
 				new BasicPrincipalIdentity(
 					User, "Test User", true, string.Empty,
-					new Dictionary<string, string>() { }
+					new Dictionary<string, string>()
 				), 
-				new DummyUserRoleProvider(true),
+				new DummyUserRoleProvider(),
 				null);
 		
 		public string User { get; set; }

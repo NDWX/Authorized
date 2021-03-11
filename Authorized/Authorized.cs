@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Transactions;
 using Authorized.Data;
 using Authorized.Extensions;
@@ -204,7 +203,7 @@ namespace Authorized
 			return _dataStoreProvider.Execute(
 					(dataSession, ctx) =>
 					{
-						Permission effectivePermission = GetEffectivePermission(ctx.subject, ctx.effectiveRoles, ctx.action, ctx.@object,
+						Permission effectivePermission = ctx.@this.GetEffectivePermission(ctx.subject, ctx.effectiveRoles, ctx.action, ctx.@object,
 													ctx.context, ctx.purpose, ctx.domain, dataSession);
 
 						if(effectivePermission == Permission.Denied)
@@ -324,7 +323,7 @@ namespace Authorized
 					throw new ArgumentException(ExceptionMessages.SUBJECT_TYPE_MUST_BE_SPECIFIED, nameof(subject));
 				
 				if( string.IsNullOrWhiteSpace(subject.Identifier))
-					throw new ArgumentException("Subject identifier must be specified", nameof(subject));
+					throw new ArgumentException(ExceptionMessages.SUBJECT_IDENTIFIER_MUST_BE_SPECIFIED, nameof(subject));
 
 				foreach(AccessControlEntry entry in entries)
 				{
@@ -419,10 +418,6 @@ namespace Authorized
 			_dataStoreProvider.Perform(
 					(dataSession, ctx) =>
 					{
-						IEnumerable<AccessControlEntry> existingEntries =
-							dataSession.GetAccessControlEntries(ctx.subject, null, ctx.@object, ctx.purpose,
-																ctx.domain);
-
 						void InsertEntries(IAuthorizedDataStore dataStore, IEnumerable<AccessControlEntry> __entries,
 											string __domain, string __purpose, Noun __object,
 											IdentifierGenerator __idGenerator)
