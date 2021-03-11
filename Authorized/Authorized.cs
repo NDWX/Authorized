@@ -396,24 +396,7 @@ namespace Authorized
 										effectivePermission == Permission.Allowed
 									) ||
 									(ctx.@this.UserIsAdministrator() && effectivePermission != Permission.Denied);
-								
-								/*if(!allowed)
-								{
-									bool hasGrantPermissions = true;
 
-									foreach(var entry in ctx.entries)
-									{
-										hasGrantPermissions =
-											hasGrantPermissions &&
-											entry.Permission == Permission.Allowed &&
-											ctx.@this.GetPermission(ctx.authorizationSubject, entry.Action, ctx.@object,
-																	entry.Context.ToDictionary(x => x.Key, x => x.Values),
-																	ctx.purpose, ctx.domain, dataSession) == Permission.Grant;
-									}
-
-									allowed = hasGrantPermissions;
-								}*/
-								
 								break;
 						}
 						
