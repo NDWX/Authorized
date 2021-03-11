@@ -68,20 +68,20 @@ namespace Authorized
 												IDictionary<string, IEnumerable<string>> context, string purpose,
 												string domain, IAuthorizedDataStore dataSession)
 		{
-			Noun obj = new Noun()
-			{
-				Type = @object.Type,
-				Identifier = @object.Identifier
-			};
-			
 			// check authorization for specified parameters
-			Permission permission = GetPermission(subject, action, obj, context, purpose, domain, dataSession);
+			Permission permission = GetPermission(subject, action, @object, context, purpose, domain, dataSession);
 
 			if(permission != Permission.None)
 				return permission;
 
-			if(obj != null && !string.IsNullOrWhiteSpace(obj.Type))
+			if(@object != null && !string.IsNullOrWhiteSpace(@object.Type))
 			{
+				Noun obj = new Noun()
+				{
+					Type = @object.Type,
+					Identifier = @object.Identifier
+				};
+
 				// check authorization for object type
 				if(!string.IsNullOrWhiteSpace(obj.Identifier))
 				{

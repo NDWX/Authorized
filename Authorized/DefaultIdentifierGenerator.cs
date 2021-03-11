@@ -5,7 +5,7 @@ namespace Authorized
 {
 	public class DefaultIdentifierGenerator : IdentifierGenerator
 	{
-		private readonly IdGen.IIdGenerator<long> _generator;
+		private readonly IIdGenerator<long> _generator;
 		
 		public DefaultIdentifierGenerator()
 		{
