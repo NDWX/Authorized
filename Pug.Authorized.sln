@@ -1,10 +1,10 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pug.Authorized", "Pug.Authorized\Pug.Authorized.csproj", "{E9A5A29A-A0AE-4BF3-853B-A441545B63D5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pug.Authorized", "src\Pug.Authorized\Pug.Authorized.csproj", "{E9A5A29A-A0AE-4BF3-853B-A441545B63D5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pug.Authorized.Common", "Pug.Authorized.Common\Pug.Authorized.Common.csproj", "{CAD7D101-8204-4394-B27D-917EE7D61846}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pug.Authorized.Common", "src\Pug.Authorized.Common\Pug.Authorized.Common.csproj", "{CAD7D101-8204-4394-B27D-917EE7D61846}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pug.Authorized.Tests", "Pug.Authorized.Tests\Pug.Authorized.Tests.csproj", "{560AC4EE-1AA8-4AB3-A131-D044295AE853}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pug.Authorized.Tests", "src\Pug.Authorized.Tests\Pug.Authorized.Tests.csproj", "{560AC4EE-1AA8-4AB3-A131-D044295AE853}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
