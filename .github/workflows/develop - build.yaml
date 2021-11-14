@@ -1,0 +1,32 @@
+name: develop - build
+
+on:
+  push:
+    branches:
+      - develop
+
+env:
+  BuildConfiguration: debug
+  CommonProject: src/Pug.Authorized.Common/Pug.Authorized.Common.csproj
+  MainProject: src/Pug.Authorized/Pug.Authorized.csproj
+
+jobs:
+  build:
+    name: Build Projects
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      # Authenticates packages to push to GPR
+      - uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '3.1.x' # SDK Version to use.
+          source-url: https://nuget.pkg.github.com/Authorized/index.json
+        env:
+          NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      
+      - name: Build Common project
+        run: dotnet build --nologo --configuration ${{env.BuildConfiguration}} ${{env.CommonProject}}
+
+      - name: Build Main project
+        run: dotnet build --nologo --configuration ${{env.BuildConfiguration}} ${{env.MainProject}}

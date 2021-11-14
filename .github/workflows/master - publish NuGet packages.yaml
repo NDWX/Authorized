@@ -1,0 +1,60 @@
+name: master - build and NuGet publish
+
+on:
+  push:
+    branches:
+      - master
+
+env:
+  BuildConfiguration: release
+  CommonProject: src/Pug.Authorized.Common/Pug.Authorized.Common.csproj
+  MainProject: src/Pug.Authorized/Pug.Authorized.csproj
+  PackagesBaseFolder: packages
+
+jobs:
+  build:
+    name: Build Projects
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      # Authenticates packages to push to GPR
+      - uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '3.1.x' # SDK Version to use.
+          source-url: https://nuget.pkg.github.com/Authorized/index.json
+        env:
+          NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Build Common project
+        run: dotnet build --nologo --configuration ${{env.BuildConfiguration}} ${{env.CommonProject}}
+
+      - name: Build Main project
+        run: dotnet build --nologo --configuration ${{env.BuildConfiguration}} ${{env.MainProject}}
+
+      - name: Create packages base folder
+        run: mkdir packages
+        
+      - name: Pack Common project
+        run: dotnet pack --output ${{env.PackagesBaseFolder}} --nologo --configuration ${{env.BuildConfiguration}} ${{env.CommonProject}}
+
+      - name: Publish Common NuGet package
+        run: dotnet nuget push ${{env.PackagesBaseFolder}}/*.nupkg --skip-duplicate
+
+      - name: Publish Common NuGet package to NuGet.org
+        run: dotnet nuget push ${{env.PackagesBaseFolder}}/*.nupkg --api-key ${{secrets.NUGET_APIKEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+      - name: Clear packages folder
+        run: rm packages/*.nupkg
+
+      - name: Pack Main project
+        run: dotnet pack --output ${{env.PackagesBaseFolder}} --nologo --configuration ${{env.BuildConfiguration}} ${{env.MainProject}}
+
+      - name: Publish Main NuGet package
+        run: dotnet nuget push ${{env.PackagesBaseFolder}}/*.nupkg --skip-duplicate
+
+      - name: Publish Main NuGet package to NuGet.org
+        run: dotnet nuget push ${{env.PackagesBaseFolder}}/*.nupkg --api-key ${{secrets.NUGET_APIKEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+      - name: Clear packages folder
+        run: rm packages/*.nupkg

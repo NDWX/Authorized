@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+    <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+        <xsd:element name="root" msdata:IsDataSet="true">
+            
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <data name="SUBJECT_TYPE_MUST_BE_SPECIFIED" xml:space="preserve">
+        <value>Subject type must be specified</value>
+    </data>
+    <data name="SUBJECT_IDENTIFIER_MUST_BE_SPECIFIED" xml:space="preserve">
+        <value>Subject identifier must be specified</value>
+    </data>
+    <data name="OBJECT_TYPE_MUST_BE_SPECIFIED" xml:space="preserve">
+        <value>Object type must be specified</value>
+    </data>
+    <data name="OBJECT_IDENTIFIER_MUST_BE_SPECIFIED" xml:space="preserve">
+        <value>Object identifier must be specified</value>
+    </data>
+    <data name="VALUE_CANNOT_BE_NULL_OR_WHITESPACE" xml:space="preserve">
+        <value>Value cannot be null or whitespace.</value>
+    </data>
+    <data name="ACE_SUBJECT_IDENTIFIER_MUST_BE_SPECIFIED" xml:space="preserve">
+        <value>Access control entry subject identifier must be specified</value>
+    </data>
+    <data name="ACE_SUBJECT_TYPE_MUST_BE_SPECIFIED" xml:space="preserve">
+        <value>Access control entry subject type must be specified</value>
+    </data>
+    <data name="ACE_SUBJECT_MUST_BE_SPECIFIED" xml:space="preserve">
+        <value>Access control entry subject must be specified.</value>
+    </data>
+</root>
