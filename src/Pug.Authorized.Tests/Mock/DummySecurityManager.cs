@@ -3,7 +3,7 @@ using Pug.Application.Security;
 
 namespace Pug.Authorized.Tests
 {
-	class DummySecurityManager : ISecurityManager
+	internal class DummySecurityManager : ISecurityManager
 	{
 		public DummySecurityManager()
 		{

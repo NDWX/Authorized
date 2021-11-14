@@ -4,16 +4,15 @@ namespace Pug.Authorized
 {
 	public interface IAuthorized
 	{
-		Permission IsAuthorized(Noun subject, string action, Noun @object, IDictionary<string, IEnumerable<string>> context,
-								string purpose, string domain);
+		Permissions IsAuthorized(Noun subject, string action, DomainObject @object, IDictionary<string, IEnumerable<string>> context,
+								string purpose);
 
-		Permission IsAuthorized(Noun subject, IEnumerable<string> effectiveRoles, string action, Noun @object,
-								IDictionary<string, IEnumerable<string>> context, string purpose, string domain);
+		Permissions IsAuthorized(Noun subject, IEnumerable<string> effectiveRoles, string action, DomainObject @object,
+								IDictionary<string, IEnumerable<string>> context, string purpose);
 
-		IEnumerable<AccessControlEntry> GetAccessControlEntries(Noun subject, string purpose, Noun @object,
-																string domain);
+		IEnumerable<AccessControlEntry> GetAccessControlEntries(Noun subject, string purpose, DomainObject @object);
 
-		void SetAccessControlEntries(string purpose, Noun @object,
-									string domain, IEnumerable<AccessControlEntry> entries, Noun subject = null);
+		void SetAccessControlEntries(string purpose, DomainObject @object,
+									IEnumerable<AccessControlEntry> entries, Noun subject = null);
 	}
 }

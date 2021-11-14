@@ -3,7 +3,7 @@ using Pug.Application.Security;
 
 namespace Pug.Authorized.Tests
 {
-	class DummySessionUserIdentityAccessor : ISessionUserIdentityAccessor
+	internal class DummySessionUserIdentityAccessor : ISessionUserIdentityAccessor
 	{
 		public DummySessionUserIdentityAccessor()
 		{

@@ -5,14 +5,14 @@ namespace Pug.Authorized.Data
 {
 	public interface IAuthorizedDataStore : IApplicationDataSession
 	{
-		IEnumerable<AccessControlEntry> GetAccessControlEntries(Noun subject, string action, Noun @object,
-																string purpose, string domain);
+		IEnumerable<AccessControlEntry> GetAccessControlEntries(Noun subject, string action, DomainObject domainObject,
+																string purpose);
 
-		void DeleteAccessControlEntries(Noun @object, Noun subject);
+		void DeleteAccessControlEntries(DomainObject domainObject, Noun subject);
 
 		bool AccessControlEntryExists(string identifier);
 
-		void InsertAccessControlEntry(string domain, string purpose, Noun @object,
+		void InsertAccessControlEntry(string purpose, DomainObject domainObject,
 									AccessControlEntry entry);
 	}
 }

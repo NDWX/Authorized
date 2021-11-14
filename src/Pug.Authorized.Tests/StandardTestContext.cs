@@ -1,6 +1,4 @@
-﻿using Pug.Application.Security;
-
-namespace Pug.Authorized.Tests
+﻿namespace Pug.Authorized.Tests
 {
 	public class StandardTestContext
 	{
@@ -12,9 +10,10 @@ namespace Pug.Authorized.Tests
 			_dummySessionUserIdentityAccessor = new DummySessionUserIdentityAccessor();
 			
 			Authorized = new Authorized(
-				new Options()
+				new Options
 				{
-					AdministratorGroup = "ADMINISTRATORS",
+					ManagementDomain = string.Empty,
+					AdministratorRole = "ADMINISTRATORS",
 					AdministrativeActionGrantees = AdministrativeActionGrantees.AllowedUsers
 				},
 				new DefaultIdentifierGenerator(),

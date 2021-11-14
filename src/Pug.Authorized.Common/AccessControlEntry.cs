@@ -8,21 +8,11 @@ namespace Pug.Authorized
 	{
 		public string Identifier { get; set; }
 		
-		/*
-		[DataMember(IsRequired = true)]
-		public string Domain { get; set; }
-		
-		[DataMember(IsRequired = true)]
-		public string Purpose { get; set; }
-		*/
-
 		[DataMember(IsRequired = true)]
 		public Noun Subject { get; set; }
 
 		[DataMember(IsRequired = true)]
 		public string Action { get; set; }
-		
-		// public Noun Object { get; set; }
 		
 		/// <summary>
 		/// Exact match
@@ -31,7 +21,7 @@ namespace Pug.Authorized
 		public IEnumerable<AccessControlContextEntry> Context { get; set; }
 
 		[DataMember(IsRequired = true)]
-		public Permission Permission { get; set; }
+		public Permissions Permissions { get; set; }
 		
 		[DataMember]
 		public RegistrationInfo RegistrationInfo { get; set; }

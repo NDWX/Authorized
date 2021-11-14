@@ -1,6 +1,6 @@
 ﻿namespace Pug.Authorized.Tests
 {
-	class AccessControlledObject
+	internal class AccessControlledObject
 	{
 		public string Domain
 		{

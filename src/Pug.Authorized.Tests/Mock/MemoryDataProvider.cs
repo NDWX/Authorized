@@ -1,9 +1,9 @@
-﻿using Pug.Authorized.Data;
-using Pug.Application.Data;
+﻿using Pug.Application.Data;
+using Pug.Authorized.Data;
 
 namespace Pug.Authorized.Tests
 {
-	class MemoryDataProvider : IApplicationData<IAuthorizedDataStore>
+	internal class MemoryDataProvider : IApplicationData<IAuthorizedDataStore>
 	{
 		public IAuthorizedDataStore GetSession()
 		{

@@ -1,5 +1,8 @@
-﻿namespace Pug.Authorized
+﻿using System;
+
+namespace Pug.Authorized
 {
+	[Flags]
 	public enum AdministrativeActionGrantees
 	{
 		/// <summary>
@@ -13,10 +16,6 @@
 		/// <summary>
 		/// Administrators and users with permissions are allowed to view or manage access control entries
 		/// </summary>
-		AllowedUsers = 4,
-		/// <summary>
-		/// All users are allowed to view access control entries
-		/// </summary>
-		AllUsers = 15
+		AllowedUsers = 4
 	}
 }

@@ -5,7 +5,7 @@ namespace Pug.Authorized
 {
 	[DataContract]
 	[Flags]
-	public enum Permission
+	public enum Permissions
 	{
 		[EnumMember]
 		None = 0,
@@ -14,6 +14,6 @@ namespace Pug.Authorized
 		[EnumMember]
 		Allowed = 2,
 		[EnumMember]
-		Grant = 6
+		Grant = 4
 	}
 }

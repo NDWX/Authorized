@@ -8,6 +8,6 @@
 			ObjectType = "OBJECT.TYPE",
 			ObjectIdentifier = "OBJECT.IDENTIFIER",
 			Purpose = "PURPOSE",
-			Domain = "DOMAIN";
+			ObjectDomain = "OBJECT.DOMAIN";
 	}
 }

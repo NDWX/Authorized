@@ -22,22 +22,23 @@ namespace Pug.Authorized.Tests
 		public void UserNotGrantedPermissionShouldNotBeAuthorized()
 		{
 			Assert.Equal(
-					Permission.Denied,
+					Permissions.Denied,
 					TestContext.Authorized.IsAuthorized(
-							new Noun()
+							new Noun
 							{
-
 								Type = SubjectTypes.User,
 								Identifier = "user"
 							},
 							AdministrativeActions.ManagePermissions,
-							new Noun()
+							new DomainObject
 							{
+								Domain = string.Empty,
+								Object = new Noun() {
 								Type = "OBJECT",
 								Identifier = "DEFAULT"
+								}
 							},
 							new Dictionary<string, IEnumerable<string>>(),
-							string.Empty,
 							string.Empty
 						)
 				);
@@ -47,21 +48,23 @@ namespace Pug.Authorized.Tests
 		public void UserWithPermissionShouldBeAuthorized()
 		{
 			Assert.Equal(
-					Permission.Allowed,
+					Permissions.Allowed,
 					TestContext.Authorized.IsAuthorized(
-							new Noun()
+							new Noun
 							{
 								Type = SubjectTypes.User,
 								Identifier = "administrator"
 							},
 							AdministrativeActions.ManagePermissions,
-							new Noun()
+							new DomainObject
 							{
+								Domain = string.Empty,
+								Object = new Noun() {
 								Type = "OBJECT",
 								Identifier = "DEFAULT"
+								}
 							},
 							new Dictionary<string, IEnumerable<string>>(),
-							string.Empty,
 							string.Empty
 						)
 				);
@@ -71,21 +74,23 @@ namespace Pug.Authorized.Tests
 		public void UnknownUserShouldNotBeGrantedPermission()
 		{
 			Assert.Equal(
-					Permission.Denied,
+					Permissions.Denied,
 					TestContext.Authorized.IsAuthorized(
-							new Noun()
+							new Noun
 							{
 								Type = SubjectTypes.User,
 								Identifier = "unknown"
 							},
 							AdministrativeActions.ManagePermissions,
-							new Noun()
+							new DomainObject
 							{
+								Domain = string.Empty,
+								Object = new Noun() {
 								Type = "OBJECT",
 								Identifier = "DEFAULT"
+								}
 							},
 							new Dictionary<string, IEnumerable<string>>(),
-							string.Empty,
 							string.Empty
 						)
 				);
@@ -95,22 +100,24 @@ namespace Pug.Authorized.Tests
 		public void UserWithAuthorizedRoleShouldBeAuthorized()
 		{
 			Assert.Equal(
-					Permission.Allowed,
+					Permissions.Allowed,
 					TestContext.Authorized.IsAuthorized(
-							new Noun()
+							new Noun
 							{
 								Type = SubjectTypes.User,
 								Identifier = "unknown"
 							},
 							new[] {"USERS"},
 							AdministrativeActions.ViewPermissions,
-							new Noun()
+							new DomainObject
 							{
+								Domain = string.Empty,
+								Object = new Noun() {
 								Type = "OBJECT",
 								Identifier = "DEFAULT"
+								}
 							},
 							new Dictionary<string, IEnumerable<string>>(),
-							string.Empty,
 							string.Empty
 						)
 				);
@@ -120,22 +127,24 @@ namespace Pug.Authorized.Tests
 		public void UserWithUnknownRoleShouldNotBeAuthorized()
 		{
 			Assert.Equal(
-					Permission.Denied,
+					Permissions.Denied,
 					TestContext.Authorized.IsAuthorized(
-							new Noun()
+							new Noun
 							{
 								Type = SubjectTypes.User,
 								Identifier = "user"
 							},
 							new[] {"UNKNOWN"},
 							AdministrativeActions.ManagePermissions,
-							new Noun()
+							new DomainObject
 							{
+								Domain = string.Empty,
+								Object = new Noun() {
 								Type = "OBJECT",
 								Identifier = "DEFAULT"
+								}
 							},
 							new Dictionary<string, IEnumerable<string>>(),
-							string.Empty,
 							string.Empty
 						)
 				);
@@ -148,19 +157,21 @@ namespace Pug.Authorized.Tests
 
 			TestContext.Authorized.SetAccessControlEntries(
 					string.Empty,
-					new Noun()
+					new DomainObject
 					{
-						Type = "OBJECT",
-						Identifier = "DEFAULT",
+						Domain = string.Empty,
+						Object = new Noun() {
+							Type = "OBJECT",
+							Identifier = "DEFAULT"
+						}
 					},
-					string.Empty,
 					new[]
 					{
-						new AccessControlEntry()
+						new AccessControlEntry
 						{
 							Action = "VIEW",
-							Permission = Permission.Allowed,
-							Subject = new Noun()
+							Permissions = Permissions.Allowed,
+							Subject = new Noun
 							{
 								Type = SubjectTypes.User,
 								Identifier = "user"
@@ -177,19 +188,21 @@ namespace Pug.Authorized.Tests
 
 			TestContext.Authorized.SetAccessControlEntries(
 					string.Empty,
-					new Noun()
+					new DomainObject
 					{
+						Domain = string.Empty,
+						Object = new Noun() {
 						Type = "OBJECT",
-						Identifier = "DEFAULT",
-					},
-					string.Empty,
+						Identifier = "DEFAULT"
+						}
+						},
 					new[]
 					{
-						new AccessControlEntry()
+						new AccessControlEntry
 						{
 							Action = "VIEW",
-							Permission = Permission.Allowed,
-							Subject = new Noun()
+							Permissions = Permissions.Allowed,
+							Subject = new Noun
 							{
 								Type = SubjectTypes.User,
 								Identifier = "user"
@@ -209,19 +222,22 @@ namespace Pug.Authorized.Tests
 					{
 						TestContext.Authorized.SetAccessControlEntries(
 								string.Empty,
-								new Noun()
+								new DomainObject
 								{
-									Type = "OBJECT",
-									Identifier = "DEFAULT",
+									Domain = string.Empty,
+									Object = new Noun()
+									{
+										Type = "OBJECT",
+										Identifier = "DEFAULT"
+									}
 								},
-								string.Empty,
 								new[]
 								{
-									new AccessControlEntry()
+									new AccessControlEntry
 									{
 										Action = "VIEW",
-										Permission = Permission.Allowed,
-										Subject = new Noun()
+										Permissions = Permissions.Allowed,
+										Subject = new Noun
 										{
 											Type = SubjectTypes.User,
 											Identifier = "user"

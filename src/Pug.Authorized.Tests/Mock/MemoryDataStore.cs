@@ -5,10 +5,10 @@ using Pug.Authorized.Data;
 
 namespace Pug.Authorized.Tests
 {
-	class MemoryDataStore : IAuthorizedDataStore
+	internal class MemoryDataStore : IAuthorizedDataStore
 	{
 		private List< ObjectAccessControlEntry> _accessControlEntries =
-			new List< ObjectAccessControlEntry>()
+			new List< ObjectAccessControlEntry>
 			{
 				/*new ObjectAccessControlEntry()
 				{
@@ -36,10 +36,10 @@ namespace Pug.Authorized.Tests
 						Permission = Permission.Allowed
 					}
 				},*/
-				new ObjectAccessControlEntry()
+				new ObjectAccessControlEntry
 				{
 					Identifier = "1",
-					Object = new AccessControlledObject()
+					Object = new AccessControlledObject
 					{
 						Domain = string.Empty,
 						Purpose = string.Empty,
@@ -49,23 +49,23 @@ namespace Pug.Authorized.Tests
 							Identifier = "DEFAULT"
 						}
 					},
-					AccessControlEntry = new AccessControlEntry()
+					AccessControlEntry = new AccessControlEntry
 					{
 						Identifier = "1",
-						Subject = new Noun()
+						Subject = new Noun
 						{
 							Type = SubjectTypes.User,
 							Identifier = "administrator"
 						},
 						Action = AdministrativeActions.ManagePermissions,
-						Context = new List<AccessControlContextEntry>() {},
-						Permission = Permission.Allowed
+						Context = new List<AccessControlContextEntry>(),
+						Permissions = Permissions.Allowed
 					}
 				},
-				new ObjectAccessControlEntry()
+				new ObjectAccessControlEntry
 				{
 					Identifier = "2",
-					Object = new AccessControlledObject()
+					Object = new AccessControlledObject
 					{
 						Domain = string.Empty,
 						Purpose = string.Empty,
@@ -75,23 +75,23 @@ namespace Pug.Authorized.Tests
 							Identifier = "DEFAULT"
 						}
 					},
-					AccessControlEntry = new AccessControlEntry()
+					AccessControlEntry = new AccessControlEntry
 					{
 						Identifier = "2",
-						Subject = new Noun()
+						Subject = new Noun
 						{
 							Type = SubjectTypes.Group,
 							Identifier = "USERS"
 						},
 						Action = AdministrativeActions.ViewPermissions,
-						Context = new List<AccessControlContextEntry>() {},
-						Permission = Permission.Allowed
+						Context = new List<AccessControlContextEntry>(),
+						Permissions = Permissions.Allowed
 					}
 				},
-				new ObjectAccessControlEntry()
+				new ObjectAccessControlEntry
 				{
 					Identifier = "3",
-					Object = new AccessControlledObject()
+					Object = new AccessControlledObject
 					{
 						Domain = string.Empty,
 						Purpose = string.Empty,
@@ -101,23 +101,23 @@ namespace Pug.Authorized.Tests
 							Identifier = "DEFAULT"
 						}
 					},
-					AccessControlEntry = new AccessControlEntry()
+					AccessControlEntry = new AccessControlEntry
 					{
 						Identifier = "3",
-						Subject = new Noun()
+						Subject = new Noun
 						{
 							Type = SubjectTypes.User,
 							Identifier = "adminuser"
 						},
 						Action = AdministrativeActions.ManagePermissions,
-						Context = new List<AccessControlContextEntry>() {},
-						Permission = Permission.Allowed
+						Context = new List<AccessControlContextEntry>(),
+						Permissions = Permissions.Allowed
 					}
 				},
-				new ObjectAccessControlEntry()
+				new ObjectAccessControlEntry
 				{
 					Identifier = "4",
-					Object = new AccessControlledObject()
+					Object = new AccessControlledObject
 					{
 						Domain = string.Empty,
 						Purpose = string.Empty,
@@ -127,23 +127,23 @@ namespace Pug.Authorized.Tests
 							Identifier = "DEFAULT"
 						}
 					},
-					AccessControlEntry = new AccessControlEntry()
+					AccessControlEntry = new AccessControlEntry
 					{
 						Identifier = "4",
-						Subject = new Noun()
+						Subject = new Noun
 						{
 							Type = SubjectTypes.Group,
 							Identifier = "POWERUSERS"
 						},
 						Action = AdministrativeActions.ManagePermissions,
-						Context = new List<AccessControlContextEntry>() {},
-						Permission = Permission.Denied
+						Context = new List<AccessControlContextEntry>(),
+						Permissions = Permissions.Denied
 					}
 				},
-				new ObjectAccessControlEntry()
+				new ObjectAccessControlEntry
 				{
 					Identifier = "5",
-					Object = new AccessControlledObject()
+					Object = new AccessControlledObject
 					{
 						Domain = string.Empty,
 						Purpose = string.Empty,
@@ -153,17 +153,17 @@ namespace Pug.Authorized.Tests
 							Identifier = "DEFAULT"
 						}
 					},
-					AccessControlEntry = new AccessControlEntry()
+					AccessControlEntry = new AccessControlEntry
 					{
 						Identifier = "5",
-						Subject = new Noun()
+						Subject = new Noun
 						{
 							Type = SubjectTypes.Group,
 							Identifier = "SYSADMINS"
 						},
 						Action = AdministrativeActions.ManagePermissions,
-						Context = new List<AccessControlContextEntry>() {},
-						Permission = Permission.Allowed
+						Context = new List<AccessControlContextEntry>(),
+						Permissions = Permissions.Allowed
 					}
 				}
 			};
@@ -188,13 +188,13 @@ namespace Pug.Authorized.Tests
 		{
 		}
 
-		public IEnumerable<AccessControlEntry> GetAccessControlEntries(Noun subject, string action, Noun @object, string purpose, string domain)
+		public IEnumerable<AccessControlEntry> GetAccessControlEntries(Noun subject, string action, DomainObject domainObject, string purpose)
 		{
 			IEnumerable<ObjectAccessControlEntry> objectAccessControlEntries = _accessControlEntries
 				.Where(x => 
-							x.Object.Domain == domain &&
+							x.Object.Domain == domainObject.Domain &&
 							x.Object.Purpose == purpose &&
-							x.Object.Object == @object &&
+							x.Object.Object == domainObject.Object &&
 							x.AccessControlEntry.Subject == subject &&
 							x.AccessControlEntry.Action == action);
 			
@@ -202,7 +202,7 @@ namespace Pug.Authorized.Tests
 										.Select(x => x.AccessControlEntry);
 		}
 
-		public void DeleteAccessControlEntries(Noun @object, Noun subject)
+		public void DeleteAccessControlEntries(DomainObject domainObject, Noun subject)
 		{
 		}
 
@@ -211,7 +211,7 @@ namespace Pug.Authorized.Tests
 			return false;
 		}
 
-		public void InsertAccessControlEntry(string domain, string purpose, Noun @object, AccessControlEntry entry)
+		public void InsertAccessControlEntry(string purpose, DomainObject domainObject, AccessControlEntry entry)
 		{
 			// if(_accessControlEntries.ContainsKey(entry.Identifier))
 			// 	throw new Exception("Duplicate access control entry identifier");
