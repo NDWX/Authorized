@@ -13,7 +13,7 @@ env:
 
 jobs:
   build:
-    name: Build Projects
+    name: Build and publish NuGet packages
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
