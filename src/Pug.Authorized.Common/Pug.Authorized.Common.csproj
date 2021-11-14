@@ -2,7 +2,6 @@
 
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageVersion>0.3</PackageVersion>
 		<Title>Pug.Authorized.Common</Title>
 		<PackageLicenseExpression>Apache-2.0+</PackageLicenseExpression>
