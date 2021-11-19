@@ -272,7 +272,7 @@ namespace Pug.Authorized
 			IPrincipalIdentity principalIdentity = _sessionUserIdentityAccessor.GetUserIdentity();
 
 			return principalIdentity.Identifier == _options.AdministrativeUser ||
-					_userRoleProvider.UserIsInRole(principalIdentity.Identifier, _options.ManagementDomain,
+					_userRoleProvider.UserIsInRole(principalIdentity.Identifier,
 													_options.AdministratorRole);
 		}
 
