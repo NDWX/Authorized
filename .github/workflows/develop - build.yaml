@@ -26,12 +26,6 @@ jobs:
           source-url: https://nuget.pkg.github.com/Authorized/index.json
         env:
           NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
-      
-      - name: Build Common project
-        run: dotnet build --nologo --configuration ${{env.BuildConfiguration}} ${{env.CommonProject}}
-
-      - name: Build Main project
-        run: dotnet build --nologo --configuration ${{env.BuildConfiguration}} ${{env.MainProject}}
 
       - name: SonarCloud Scan
         run: |
@@ -40,3 +34,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      - name: Build Common project
+        run: dotnet build --nologo --configuration ${{env.BuildConfiguration}} ${{env.CommonProject}}
+
+      - name: Build Main project
+        run: dotnet build --nologo --configuration ${{env.BuildConfiguration}} ${{env.MainProject}}
+        
+      - name: End Sonar scan
+        run: dotnet sonarscanner end /d:sonar.login=${{ secrets.SONAR_TOKEN }}
