@@ -276,6 +276,15 @@ namespace Pug.Authorized
 													_options.AdministratorRole);
 		}
 
+		private Noun GetCurrentSubject()
+		{
+			Noun authorizationSubject = new Noun()
+			{
+				Identifier = _sessionUserIdentityAccessor.GetUserIdentity().Identifier, Type = SubjectTypes.User
+			};
+			return authorizationSubject;
+		}
+
 		private static void CheckSubjectSpecificationIsComplete(AccessControlEntry entry, string parameterName)
 		{
 			if(entry.Subject == null)
@@ -299,6 +308,21 @@ namespace Pug.Authorized
 				throw new ArgumentException(ExceptionMessages.SUBJECT_IDENTIFIER_MUST_BE_SPECIFIED, parameterName);
 		}
 
+		private static Dictionary<string, IEnumerable<string>> PopulateAdministratorAuthorizationContext(Noun subject, string purpose, DomainObject @object)
+		{
+			Dictionary<string, IEnumerable<string>> authorizationContext = new Dictionary<string, IEnumerable<string>>()
+			{
+				[AdministrativeAccessControlContextKeys.SubjectType] = new[] { subject?.Type },
+				[AdministrativeAccessControlContextKeys.SubjectIdentifier] = new[] { subject?.Identifier },
+				[AdministrativeAccessControlContextKeys.ObjectType] = new[] { @object.Object.Type },
+				[AdministrativeAccessControlContextKeys.ObjectIdentifier] = new[] { @object.Object.Identifier },
+				[AdministrativeAccessControlContextKeys.ObjectDomain] = new[] { @object.Domain },
+				[AdministrativeAccessControlContextKeys.Purpose] = new[] { purpose },
+			};
+			
+			return authorizationContext;
+		}
+
 		public IEnumerable<AccessControlEntry> GetAccessControlEntries(Noun subject, string purpose, DomainObject @object)
 		{
 			if(subject != null && string.IsNullOrWhiteSpace(subject.Type))
@@ -307,20 +331,9 @@ namespace Pug.Authorized
 			if(@object == null) throw new ArgumentNullException(nameof(@object));
 			if(@object.Object == null) throw new ArgumentNullException($"{nameof(@object)}.{nameof(@object.Object)}");
 
-			Dictionary<string, IEnumerable<string>> authorizationContext = new Dictionary<string, IEnumerable<string>>()
-			{
-				[AdministrativeAccessControlContextKeys.SubjectType] = new [] {subject?.Type},
-				[AdministrativeAccessControlContextKeys.SubjectIdentifier] = new [] {subject?.Identifier},
-				[AdministrativeAccessControlContextKeys.ObjectType] = new [] {@object.Object.Type},
-				[AdministrativeAccessControlContextKeys.ObjectIdentifier] = new [] {@object.Object.Identifier},
-				[AdministrativeAccessControlContextKeys.ObjectDomain] = new [] {@object.Domain},
-				[AdministrativeAccessControlContextKeys.Purpose] = new [] {purpose},
-			};
+			Dictionary<string, IEnumerable<string>> authorizationContext = PopulateAdministratorAuthorizationContext(subject, purpose, @object);
 
-			Noun authorizationSubject = new Noun()
-			{
-				Identifier = _sessionUserIdentityAccessor.GetUserIdentity().Identifier, Type = SubjectTypes.User
-			};
+			Noun authorizationSubject = GetCurrentSubject();
 
 			return _dataStoreProvider.Execute(
 					(dataSession, ctx) =>
@@ -405,70 +418,12 @@ namespace Pug.Authorized
 			if(@object == null) throw new ArgumentNullException(nameof(@object));
 			if(@object.Object == null) throw new ArgumentNullException($"{nameof(@object)}.{nameof(@object.Object)}");
 
-			Dictionary<string, IEnumerable<string>> authorizationContext = new Dictionary<string, IEnumerable<string>>()
-			{
-				[AdministrativeAccessControlContextKeys.SubjectType] = new[] {subject?.Type},
-				[AdministrativeAccessControlContextKeys.SubjectIdentifier] = new[] {subject?.Identifier},
-				[AdministrativeAccessControlContextKeys.ObjectType] = new[] {@object.Object.Type},
-				[AdministrativeAccessControlContextKeys.ObjectIdentifier] = new[] {@object.Object.Identifier},
-				[AdministrativeAccessControlContextKeys.ObjectDomain] = new [] {@object.Domain},
-				[AdministrativeAccessControlContextKeys.Purpose] = new[] {purpose},
-			};
+			Dictionary<string, IEnumerable<string>> authorizationContext =
+				PopulateAdministratorAuthorizationContext(subject, purpose, @object);
 
-			Noun authorizationSubject = new Noun()
-			{
-				Identifier = _sessionUserIdentityAccessor.GetUserIdentity().Identifier, Type = SubjectTypes.User
-			};
+			Noun authorizationSubject = GetCurrentSubject();
 
-			_dataStoreProvider.Perform(
-					(dataSession, ctx) =>
-					{
-						bool allowed = false;
-
-						switch(ctx.@this._options.AdministrativeActionGrantees)
-						{
-							case AdministrativeActionGrantees.Administrators:
-								
-								allowed = ctx.@this.UserIsAdministrator();
-								
-								break;
-							
-							case AdministrativeActionGrantees.AllowedUsers:
-
-								Permissions effectivePermissions = ctx.@this.GetEffectivePermission(
-									ctx.authorizationSubject,
-									ctx.@this._userRoleProvider.GetUserRoles(ctx.authorizationSubject.Identifier, ctx.@object.Domain),
-									AdministrativeActions.ManagePermissions,
-									ctx.@object,
-									ctx.authorizationContext,
-									ctx.purpose,
-									dataSession);
-
-								allowed =
-									( // users with permissions are allowed to manage permissions
-										effectivePermissions == Permissions.Allowed
-									) ||
-									(ctx.@this.UserIsAdministrator() && effectivePermissions != Permissions.Denied);
-
-								break;
-						}
-						
-						if(!allowed)
-							throw new NotAuthorized();
-
-					},
-					new
-					{
-						@this = this,
-						@object = @object, purpose, entries, authorizationContext,
-						authorizationSubject
-					},
-					TransactionScopeOption.Required,
-					new TransactionOptions()
-					{
-						IsolationLevel = IsolationLevel.ReadCommitted
-					}
-				);
+			CheckSetAceAuthorization(purpose, @object, entries, authorizationContext, authorizationSubject);
 			
 			_dataStoreProvider.Perform(
 					(dataSession, ctx) =>
@@ -497,6 +452,60 @@ namespace Pug.Authorized
 					new
 					{
 						@this = this, subject,
+						@object = @object, purpose, entries, authorizationContext,
+						authorizationSubject
+					},
+					TransactionScopeOption.Required,
+					new TransactionOptions()
+					{
+						IsolationLevel = IsolationLevel.ReadCommitted
+					}
+				);
+		}
+
+		private void CheckSetAceAuthorization(string purpose, DomainObject @object, IEnumerable<AccessControlEntry> entries,
+											Dictionary<string, IEnumerable<string>> authorizationContext, Noun authorizationSubject)
+		{
+			_dataStoreProvider.Perform(
+					(dataSession, ctx) =>
+					{
+						bool allowed = false;
+
+						switch(ctx.@this._options.AdministrativeActionGrantees)
+						{
+							case AdministrativeActionGrantees.Administrators:
+
+								allowed = ctx.@this.UserIsAdministrator();
+
+								break;
+
+							case AdministrativeActionGrantees.AllowedUsers:
+
+								Permissions effectivePermissions = ctx.@this.GetEffectivePermission(
+									ctx.authorizationSubject,
+									ctx.@this._userRoleProvider.GetUserRoles(ctx.authorizationSubject.Identifier,
+																			ctx.@object.Domain),
+									AdministrativeActions.ManagePermissions,
+									ctx.@object,
+									ctx.authorizationContext,
+									ctx.purpose,
+									dataSession);
+
+								allowed =
+									( // users with permissions are allowed to manage permissions
+										effectivePermissions == Permissions.Allowed
+									) ||
+									(ctx.@this.UserIsAdministrator() && effectivePermissions != Permissions.Denied);
+
+								break;
+						}
+
+						if(!allowed)
+							throw new NotAuthorized();
+					},
+					new
+					{
+						@this = this,
 						@object = @object, purpose, entries, authorizationContext,
 						authorizationSubject
 					},
