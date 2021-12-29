@@ -7,6 +7,7 @@ on:
 
 env:
   BuildConfiguration: debug
+  Solution: Pug.Authorized.sln
   CommonProject: src/Pug.Authorized.Common/Pug.Authorized.Common.csproj
   MainProject: src/Pug.Authorized/Pug.Authorized.csproj
 
@@ -30,16 +31,16 @@ jobs:
       - name: SonarCloud Scan
         run: |
           dotnet tool install --global dotnet-sonarscanner
-          dotnet sonarscanner begin /o:ndwx /k:NDWX_Authorized /d:sonar.login=${{secrets.SONAR_TOKEN}}  /d:sonar.host.url=https://sonarcloud.io  
+          dotnet sonarscanner begin /o:ndwx /k:NDWX_Authorized /d:sonar.login=${{secrets.SONAR_TOKEN}}  /d:sonar.host.url=https://sonarcloud.io  /d:sonar.cs.opencover.reportsPaths=**/coverage.opencover.xml  
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-      - name: Build Common project
-        run: dotnet build --nologo --configuration ${{env.BuildConfiguration}} ${{env.CommonProject}}
+      - name: Restore NuGet packages
+        run: dotnet restore --nologo ${{env.Solution}}
 
       - name: Build Main project
-        run: dotnet build --nologo --configuration ${{env.BuildConfiguration}} ${{env.MainProject}}
+        run: dotnet build --nologo --no-restore --configuration ${{env.BuildConfiguration}} ${{env.MainProject}}
         
       - name: End Sonar scan
         run: dotnet sonarscanner end /d:sonar.login=${{ secrets.SONAR_TOKEN }}
