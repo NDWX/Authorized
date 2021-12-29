@@ -35,7 +35,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
       - name: Restore NuGet packages
-        run: dotnet restore --nologo ${{env.Solution}}
+        run: dotnet restore ${{env.Solution}}
 
       - name: Build Main project
         run: dotnet build --nologo --no-restore --configuration ${{env.BuildConfiguration}} ${{env.MainProject}}
