@@ -42,7 +42,7 @@ jobs:
 
       - name: Run tests
         run: |
-          dotnet build --nologo --no-restore --configuration ${{env.BuildConfiguration}} src/Pug.Authorized.Tests/Pug.Authorized.Tests.csproj
+          dotnet build --nologo --no-restore src/Pug.Authorized.Tests/Pug.Authorized.Tests.csproj
           dotnet test --nologo src/Pug.Authorized.Tests/Pug.Authorized.Tests.csproj --no-build --no-restore --verbosity normal -p:CollectCoverage=true -p:CoverletOutputFormat=opencover
 
       - name: End Sonar scan
