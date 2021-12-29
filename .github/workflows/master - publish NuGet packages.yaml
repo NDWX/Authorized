@@ -40,6 +40,11 @@ jobs:
       - name: Build Main project
         run: dotnet build --nologo --no-restore --configuration ${{env.BuildConfiguration}} ${{env.MainProject}}
 
+      - name: Run tests
+        run: |
+          dotnet build --nologo src/Pug.Authorized.Tests/Pug.Authorized.Tests.csproj
+          dotnet test --nologo src/Pug.Authorized.Tests/Pug.Authorized.Tests.csproj --no-build --no-restore --verbosity normal -p:CollectCoverage=true -p:CoverletOutputFormat=opencover
+
       - name: End Sonar scan
         run: dotnet sonarscanner end /d:sonar.login=${{ secrets.SONAR_TOKEN }}
         env:
