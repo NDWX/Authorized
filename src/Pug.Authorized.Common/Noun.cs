@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 
 namespace Pug.Authorized
 {
-	public class Noun : IEquatable<Noun>
+	public sealed class Noun : IEquatable<Noun>
 	{
 		[DataMember(IsRequired = true)]
 		public string Type { get; set; }

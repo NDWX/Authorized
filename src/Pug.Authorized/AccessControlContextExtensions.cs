@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Pug.Authorized.Extensions
+namespace Pug.Authorized
 {
 	public static class AccessControlContextExtensions
 	{
