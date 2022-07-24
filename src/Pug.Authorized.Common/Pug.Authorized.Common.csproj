@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
-		<PackageVersion>0.4</PackageVersion>
+		<PackageVersion>0.5</PackageVersion>
 		<Title>Pug.Authorized.Common</Title>
 		<PackageLicenseExpression>Apache-2.0+</PackageLicenseExpression>
 		<License>Apache2.0</License>
@@ -11,8 +11,8 @@
 		<PackageTags>Pug.Authorized Authorization Framework Common Types</PackageTags>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 		<Company>Pug Computing</Company>
-		<AssemblyVersion>0.4</AssemblyVersion>
-		<FileVersion>0.4</FileVersion>
+		<AssemblyVersion>0.5</AssemblyVersion>
+		<FileVersion>0.5</FileVersion>
 		<RootNamespace>Pug.Authorized</RootNamespace>
 		<PackageReleaseNotes>Upgraded Pug.Application.Security to v2.0.0</PackageReleaseNotes>
 	</PropertyGroup>
