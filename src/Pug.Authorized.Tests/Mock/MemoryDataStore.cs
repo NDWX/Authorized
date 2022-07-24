@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading.Tasks;
 using Pug.Authorized.Data;
 
 namespace Pug.Authorized.Tests
@@ -227,6 +228,30 @@ namespace Pug.Authorized.Tests
 			// {
 			// 	Identifier = entry.Identifier, Object = obj, AccessControlEntry = entry
 			// };
+		}
+
+		public Task<IEnumerable<AccessControlEntry>> GetAccessControlEntriesAsync( Noun subject, string action, DomainObject domainObject, string purpose )
+		{
+			return Task.FromResult( GetAccessControlEntries( subject, action, domainObject, purpose ) );
+		}
+
+		public Task DeleteAccessControlEntriesAsync( DomainObject domainObject, Noun subject )
+		{
+			DeleteAccessControlEntries( domainObject, subject );
+			
+			return Task.CompletedTask;
+		}
+
+		public Task<bool> AccessControlEntryExistsAsync( string identifier )
+		{
+			return Task.FromResult( AccessControlEntryExists( identifier ) );
+		}
+
+		public Task InsertAccessControlEntryAsync( string purpose, DomainObject domainObject, AccessControlEntry entry )
+		{
+			InsertAccessControlEntry( purpose, domainObject, entry );
+			
+			return Task.CompletedTask;
 		}
 	}
 }
