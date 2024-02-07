@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <Title>Pug.Authorized.Data.Common</Title>
+        <Company>Pug Computing</Company>
+        <RepositoryType>Git</RepositoryType>
+        <RepositoryUrl>https://github.com/NDWX/Authorized.git</RepositoryUrl>
+        <AssemblyVersion>0.1</AssemblyVersion>
+        <FileVersion>0.1</FileVersion>
+        <PackageVersion>0.1</PackageVersion>
+        <PackageLicenseExpression>Apache-2.0+</PackageLicenseExpression>
+        <License>Apache2.0</License>
+        <PackageTags>Pug.Authorized Authorization Framework Common DataAccess Library</PackageTags>
+        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+        <PackageReleaseNotes></PackageReleaseNotes>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Pug.Application.Data" Version="1.2.1" />
+        <PackageReference Include="SonarAnalyzer.CSharp" Version="8.32.0.39516">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Pug.Authorized.Models\Pug.Authorized.Models.csproj" />
+    </ItemGroup>
+</Project>

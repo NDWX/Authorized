@@ -8,22 +8,26 @@ on:
 env:
   BuildConfiguration: debug
   Solution: Pug.Authorized.sln
+  ModelsProject: src/Pug.Authorized.Models/Pug.Authorized.Models.csproj
   CommonProject: src/Pug.Authorized.Common/Pug.Authorized.Common.csproj
   MainProject: src/Pug.Authorized/Pug.Authorized.csproj
+  DataCommonProject: src/Pug.Authorized.Data.Common/Pug.Authorized.Data.Common.csproj
+  DependencyInjectionProject: src/Pug.Authorized.DependencyInjection/Pug.Authorized.DependencyInjection.csproj
+  RestProject: src/Pug.Authorized.Rest/Pug.Authorized.Rest.csproj
 
 jobs:
   build:
     name: Build Projects
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       
       # Authenticates packages to push to GPR
-      - uses: actions/setup-dotnet@v1
+      - uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '3.1.x' # SDK Version to use.
+          dotnet-version: '8' # SDK Version to use.
           source-url: https://nuget.pkg.github.com/Authorized/index.json
         env:
           NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
@@ -41,6 +45,12 @@ jobs:
 
       - name: Build Main project
         run: dotnet build --nologo --no-restore --configuration ${{env.BuildConfiguration}} ${{env.MainProject}}
+
+      - name: Build DependencyInjection project
+        run: dotnet build --nologo --no-restore --configuration ${{env.BuildConfiguration}} ${{env.DependencyInjectionProject}}
+
+      - name: Build Rest project
+        run: dotnet build --nologo --no-restore --configuration ${{env.BuildConfiguration}} ${{env.RestProject}}
   
       - name: Run tests
         run: |
