@@ -1,15 +1,14 @@
 ﻿using System.Runtime.Serialization;
 
-namespace Pug.Authorized
+namespace Pug.Authorized;
+
+[DataContract]
+public enum AccessControlEntriesModification
 {
-	[DataContract]
-	public enum AccessControlEntriesModification
-	{
-		[EnumMember]
-		Append = 1,
-		[EnumMember]
-		Replace = 2,
-		[EnumMember]
-		Remove = 4
-	}
+	[EnumMember]
+	Append = 1,
+	[EnumMember]
+	Replace = 2,
+	[EnumMember]
+	Remove = 4
 }

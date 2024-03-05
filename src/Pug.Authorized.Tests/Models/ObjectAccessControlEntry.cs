@@ -1,11 +1,10 @@
-﻿namespace Pug.Authorized.Tests
+﻿namespace Pug.Authorized.Tests;
+
+internal class ObjectAccessControlEntry
 {
-	internal class ObjectAccessControlEntry
-	{
-		public string Identifier { get; set; }
+	public string Identifier { get; set; }
 		
-		public AccessControlledObject Object { get; set; }
+	public AccessControlledObject Object { get; set; }
 		
-		public AccessControlEntry AccessControlEntry { get; set; }
-	}
+	public AccessControlEntry AccessControlEntry { get; set; }
 }

@@ -1,24 +1,23 @@
 ﻿using System.Collections.Generic;
 using Pug.Application.Security;
 
-namespace Pug.Authorized.Tests
+namespace Pug.Authorized.Tests;
+
+internal class DummySecurityManager : ISecurityManager
 {
-	internal class DummySecurityManager : ISecurityManager
+	public DummySecurityManager()
 	{
-		public DummySecurityManager()
-		{
-			User = "testuser";
-		}
+		User = "testuser";
+	}
 		
-		public IUser CurrentUser =>
-			new User(
-				new BasicPrincipalIdentity(
+	public IUser CurrentUser =>
+		new User(
+			new BasicPrincipalIdentity(
 					User, "Test User", true, string.Empty,
 					new Dictionary<string, string>()
 				), 
-				new DummyUserRoleProvider(),
-				null);
+			new DummyUserRoleProvider(),
+			null);
 		
-		public string User { get; set; }
-	}
+	public string User { get; set; }
 }

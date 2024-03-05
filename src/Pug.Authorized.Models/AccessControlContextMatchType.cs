@@ -1,11 +1,10 @@
-﻿namespace Pug.Authorized
+﻿namespace Pug.Authorized;
+
+public enum AccessControlContextMatchType
 {
-	public enum AccessControlContextMatchType
-	{
-		Equals,
-		In,
-		Like,
-		NotIn,
-		NotEqual
-	}
+	Equals,
+	In,
+	Like,
+	NotIn,
+	NotEqual
 }

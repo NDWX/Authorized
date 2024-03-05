@@ -15,12 +15,7 @@ internal class AccessControlContextEntryTypeHandler : SqlMapper.TypeHandler<Acce
 
 	public override void SetValue( IDbDataParameter parameter, AccessControlContextEntry? value )
 	{
-		string json = null;
-
-		if( value is not null )
-			json = JsonSerializer.Serialize( value, SerializerOptions );
-
-		parameter.Value = json;
+		parameter.Value = JsonSerializer.Serialize( value, SerializerOptions);
 	}
 
 	public override AccessControlContextEntry? Parse( object value )

@@ -1,29 +1,28 @@
 ﻿using System.Runtime.Serialization;
 
-namespace Pug.Authorized
+namespace Pug.Authorized;
+
+public sealed record Noun
 {
-	public sealed record Noun
+	[DataMember(IsRequired = true)]
+	public string Type
 	{
-		[DataMember(IsRequired = true)]
-		public string Type
-		{
-			get;
+		get;
 #if NET6_0_OR_GREATER
-			init;
+		init;
 #else
 			set;
 #endif
-		}
+	}
 		
-		[DataMember(IsRequired = true)]
-		public string Identifier
-		{
-			get;
+	[DataMember(IsRequired = true)]
+	public string Identifier
+	{
+		get;
 #if NET6_0_OR_GREATER
-			init;
+		init;
 #else
 			set;
 #endif
-		}
 	}
 }

@@ -1,44 +1,43 @@
 ﻿using System.Collections.Generic;
 using System.Runtime.Serialization;
 
-namespace Pug.Authorized
+namespace Pug.Authorized;
+
+public record AccessControlEntryDefinition
 {
-	public record AccessControlEntryDefinition
+	[DataMember(IsRequired = true)]
+	public string Action
 	{
-		[DataMember(IsRequired = true)]
-		public string Action
-		{
-			get;
+		get;
 #if NET6_0_OR_GREATER
-			init;
+		init;
 #else
 			set;
 #endif
-		}
+	}
 
-		/// <summary>
-		/// Exact match
-		/// </summary>
-		[DataMember(IsRequired = true)]
-		public IEnumerable<AccessControlContextEntry> Context
-		{
-			get;
+	/// <summary>
+	/// Exact match
+	/// </summary>
+	[DataMember(IsRequired = true)]
+	public IEnumerable<AccessControlContextEntry> Context
+	{
+		get;
 #if NET6_0_OR_GREATER
-			init;
+		init;
 #else
 			set;
 #endif
-		}
+	}
 
-		[DataMember(IsRequired = true)]
-		public Permissions Permissions
-		{
-			get;
+	[DataMember(IsRequired = true)]
+	public Permissions Permissions
+	{
+		get;
 #if NET6_0_OR_GREATER
-			init;
+		init;
 #else
 			set;
 #endif
-		}
 	}
 }

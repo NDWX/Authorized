@@ -38,8 +38,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="IdGen" Version="3.0.0" />
-	  <PackageReference Include="SonarAnalyzer.CSharp" Version="8.32.0.39516">
+	  <PackageReference Include="IdGen" Version="3.0.3" />
+	  <PackageReference Include="SonarAnalyzer.CSharp" Version="9.19.0.84025">
 	    <PrivateAssets>all</PrivateAssets>
 	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 	  </PackageReference>
