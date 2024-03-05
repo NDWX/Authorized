@@ -1,7 +1,6 @@
-﻿namespace Pug.Authorized
+﻿namespace Pug.Authorized;
+
+public interface IdentifierGenerator
 {
-	public interface IdentifierGenerator
-	{
-		string GetNext();
-	}
+	string GetNext();
 }

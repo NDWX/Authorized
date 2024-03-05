@@ -1,25 +1,24 @@
-namespace Pug.Authorized
+namespace Pug.Authorized;
+
+public record DomainObject
 {
-	public record DomainObject
+	public string Domain
 	{
-		public string Domain
-		{
-			get;
+		get;
 #if NET6_0_OR_GREATER
-			init;
+		init;
 #else
 			set;
 #endif
-		}
+	}
 		
-		public Noun Object
-		{
-			get;
+	public Noun Object
+	{
+		get;
 #if NET6_0_OR_GREATER
-			init;
+		init;
 #else
 			set;
 #endif
-		}
 	}
 }

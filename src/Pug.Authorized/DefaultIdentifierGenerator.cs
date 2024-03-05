@@ -1,20 +1,19 @@
 ﻿using System.Globalization;
 using IdGen;
 
-namespace Pug.Authorized
+namespace Pug.Authorized;
+
+public class DefaultIdentifierGenerator : IdentifierGenerator
 {
-	public class DefaultIdentifierGenerator : IdentifierGenerator
+	private readonly IIdGenerator<long> _generator;
+		
+	public DefaultIdentifierGenerator()
 	{
-		private readonly IIdGenerator<long> _generator;
+		_generator = new IdGenerator(0, IdGeneratorOptions.Default);
+	}
 		
-		public DefaultIdentifierGenerator()
-		{
-			_generator = new IdGenerator(0, IdGeneratorOptions.Default);
-		}
-		
-		public string GetNext()
-		{
-			return _generator.CreateId().ToString(CultureInfo.InvariantCulture);
-		}
+	public string GetNext()
+	{
+		return _generator.CreateId().ToString(CultureInfo.InvariantCulture);
 	}
 }
