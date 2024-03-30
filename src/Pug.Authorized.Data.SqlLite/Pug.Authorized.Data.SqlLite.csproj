@@ -16,6 +16,7 @@
         <PackageTags>Pug.Authorized Authorization Framework SqlLite SQLite DataAccess</PackageTags>
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
         <PackageReleaseNotes></PackageReleaseNotes>
+        <RootNamespace>Pug.Authorize.Data.SqlLite</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>

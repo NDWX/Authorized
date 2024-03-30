@@ -25,7 +25,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\Pug.Authorize.Data.SqlLite\Pug.Authorize.Data.SqlLite.csproj" />
+	  <ProjectReference Include="..\Pug.Authorized.Data.SqlLite\Pug.Authorized.Data.SqlLite.csproj" />
 	  <ProjectReference Include="..\Pug.Authorized\Pug.Authorized.csproj" />
 	</ItemGroup>
 
