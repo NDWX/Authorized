@@ -14,7 +14,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pug.Authorized.Data.Common"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pug.Authorized.Models", "src\Pug.Authorized.Models\Pug.Authorized.Models.csproj", "{BA54D559-F6CF-4E57-BC5A-62451B228857}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pug.Authorize.Data.SqlLite", "src\Pug.Authorize.Data.SqlLite\Pug.Authorize.Data.SqlLite.csproj", "{1265C00E-9D9B-4BDE-AA17-B1CE659BE11B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pug.Authorized.Data.SqlLite", "src\Pug.Authorized.Data.SqlLite\Pug.Authorized.Data.SqlLite.csproj", "{1265C00E-9D9B-4BDE-AA17-B1CE659BE11B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
