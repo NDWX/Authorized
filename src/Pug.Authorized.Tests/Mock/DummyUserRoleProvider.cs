@@ -7,13 +7,14 @@ namespace Pug.Authorized.Tests;
 
 internal class DummyUserRoleProvider : IUserRoleProvider
 {
-	private const string _user = "user", _administrator = "administrator";
+	public const string _user = "user", _administrator = "administrator";
 	private readonly Dictionary<string, ICollection<string>> _roles = new ();
 
 	public DummyUserRoleProvider()
 	{
 		_roles.Add(_administrator, new[] {"USERS", "ADMINISTRATORS"});
-		_roles.Add(_user, new[] {"USERS"});
+		_roles.Add(_user, new[] {"USERS", "GROUP1"});
+		_roles.Add("USER2", new[] {"USERS", "GROUP2"});
 		_roles.Add("poweruser", new[] {"POWERUSERS", "ADMINISTRATORS"});
 		_roles.Add("sysadmin", new[] {"SYSADMINS"});
 	}

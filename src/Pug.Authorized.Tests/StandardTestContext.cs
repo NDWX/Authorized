@@ -1,14 +1,33 @@
 ﻿using System;
 using System.Data.SQLite;
 using System.IO;
+using System.Threading;
 using Pug.Authorize.Data.SqlLite;
+using Pug.Effable;
 
 namespace Pug.Authorized.Tests;
 
-public class StandardTestContext
+public class StandardTestContext : IDisposable
 {
+	public static readonly string Purpose = "TEST";
+
+	public static readonly DomainObject Object1 = new ()
+	{
+		Domain = "DEFAULT", Object = new Noun()
+		{
+			Type = "OBJECT", Identifier = "OBJECT1"
+
+		}
+	};
+
+	public static readonly Noun User1 = new () { Type = SubjectTypes.User, Identifier = "USER1" };
+
+	private static AccessControlEntry viewAccessControlEntry;
+	public static AccessControlEntry ViewAccessControlEntry => viewAccessControlEntry;
+
+
 	private readonly DateTime _testStartDateTime = DateTime.Now;
-	private const string DataStoreLocation = @".\testDataStore.sqlite";
+	private readonly string DataStoreLocation;
 	private readonly DummySessionUserIdentityAccessor _dummySessionUserIdentityAccessor;
 	private readonly DefaultIdentifierGenerator _identifierGenerator;
 
@@ -21,17 +40,22 @@ public class StandardTestContext
 
 	public StandardTestContext()
 	{
-		_dummySessionUserIdentityAccessor = new DummySessionUserIdentityAccessor();
+		DataStoreLocation = $".\\{DateTime.Now.Ticks.ToString()}.sqlite";
 
-		if( File.Exists( DataStoreLocation ) )
+		while( File.Exists( DataStoreLocation ) )
 		{
-			File.Delete( DataStoreLocation );
+			Thread.Sleep( new Random().Next(1, 1000) );
+			DataStoreLocation = $".\\{DateTime.Now.Ticks.ToString()}.sqlite";
 		}
 
 		AuthorizationDataStore.Create( DataStoreLocation );
 
 		DataStore = new AuthorizationDataStore($"data source={DataStoreLocation}", SQLiteFactory.Instance);
+
 		_identifierGenerator = new DefaultIdentifierGenerator();
+
+		_dummySessionUserIdentityAccessor = new DummySessionUserIdentityAccessor();
+
 		Authorized = new Authorized(
 				new Options
 				{
@@ -44,10 +68,34 @@ public class StandardTestContext
 				new DummyUserRoleProvider(),
 				DataStore
 			);
+
+		viewAccessControlEntry = new AccessControlEntry()
+		{
+			Identifier = _identifierGenerator.GetNext(),
+			Definition = new AccessControlEntryDefinition()
+			{
+				Action = TestActions.View,
+				Permissions = Permissions.Allowed,
+				Context = Array.Empty<AccessControlContextEntry>()
+			},
+			Registration = new ActionContext()
+			{
+				Actor = new Reference()
+				{
+					Type = "USER", Identifier = "ADMINISTRATOR"
+				},
+				Timestamp = TestStartDateTime
+			}
+		};
 	}
 
 	public void SetCurrentUser(string username)
 	{
 		_dummySessionUserIdentityAccessor.User = username;
+	}
+
+	public void Dispose()
+	{
+		File.Delete( DataStoreLocation );
 	}
 }

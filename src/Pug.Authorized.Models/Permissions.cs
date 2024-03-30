@@ -12,7 +12,5 @@ public enum Permissions
 	[EnumMember]
 	Denied = 1,
 	[EnumMember]
-	Allowed = 2,
-	[EnumMember]
-	Grant = 4
+	Allowed = 2
 }

@@ -108,7 +108,7 @@ public class Authorized : IAuthorized
 	///			<description>If no specific permission has been granted to user for <paramref name="object"/></description>
 	///		</item>
 	/// </list>
-	///  
+	///
 	/// </summary>
 	/// <param name="subject"></param>
 	/// <param name="action"></param>
@@ -156,7 +156,7 @@ public class Authorized : IAuthorized
 											@object with
 											{
 												Object = @object.Object with { Identifier = string.Empty }
-											}, 
+											},
 											context, purpose, dataSession );
 
 				if( permissions != Permissions.None )
@@ -271,35 +271,23 @@ public class Authorized : IAuthorized
 				{
 					bool allowed = false;
 
-					switch( ctx.@this._options.AdministrativeActionGrantees )
-					{
-						case AdministrativeActionGrantees.Administrators:
+					Permissions effectivePermissions = await ctx.@this.GetEffectivePermissionAsync(
+															ctx.authorizationSubject,
+															ctx.@this._userRoleProvider.GetUserRoles(
+																ctx.authorizationSubject.Identifier,
+																ctx.@object.Domain ),
+															AdministrativeActions.ManagePermissions,
+															ctx.@object,
+															ctx.authorizationContext,
+															ctx.purpose,
+															dataSession );
 
-							allowed = ctx.@this.UserIsAdministrator();
+					allowed =
+						( // users with permissions are allowed to manage permissions
+							effectivePermissions == Permissions.Allowed
+						) ||
+						( ctx.@this.UserIsAdministrator() && effectivePermissions != Permissions.Denied );
 
-							break;
-
-						case AdministrativeActionGrantees.AllowedUsers:
-
-							Permissions effectivePermissions = await ctx.@this.GetEffectivePermissionAsync(
-																	ctx.authorizationSubject,
-																	ctx.@this._userRoleProvider.GetUserRoles(
-																		ctx.authorizationSubject.Identifier,
-																		ctx.@object.Domain ),
-																	AdministrativeActions.ManagePermissions,
-																	ctx.@object,
-																	ctx.authorizationContext,
-																	ctx.purpose,
-																	dataSession );
-
-							allowed =
-								( // users with permissions are allowed to manage permissions
-									effectivePermissions == Permissions.Allowed
-								) ||
-								( ctx.@this.UserIsAdministrator() && effectivePermissions != Permissions.Denied );
-
-							break;
-					}
 
 					if( !allowed )
 						throw new NotAuthorized();
@@ -338,7 +326,7 @@ public class Authorized : IAuthorized
 												IDictionary<string, IEnumerable<string>> context, string purpose )
 	{
 		Validate( purpose, @object, false, false, subject );
-			
+
 		action.Validate();
 
 		IEnumerable<string> effectiveRoles = null;
@@ -402,8 +390,8 @@ public class Authorized : IAuthorized
 			return new PossibleErrors<ArgumentException, ArgumentNullException>(
 					new ArgumentNullException( nameof(@object) )
 				);
-			
-		OneOf<Unit, PossibleErrors<ArgumentException, ArgumentNullException>> result = 
+
+		OneOf<Unit, PossibleErrors<ArgumentException, ArgumentNullException>> result =
 			@object.Validate(objectRequired, objectIdentifierRequired );
 
 		if( result.Is<PossibleErrors<ArgumentException, ArgumentNullException>>() )
@@ -415,25 +403,25 @@ public class Authorized : IAuthorized
 	private static OneOf<Unit, PossibleErrors<ArgumentException, ArgumentNullException>> Validate(
 		string purpose, DomainObject @object, bool objectRequired, bool objectIdentifierRequired, Noun subject)
 	{
-		OneOf<Unit, PossibleErrors<ArgumentException, ArgumentNullException>> result = 
+		OneOf<Unit, PossibleErrors<ArgumentException, ArgumentNullException>> result =
 			Validate( purpose, @object, objectRequired, objectIdentifierRequired );
 
 		if( !result.Is<Unit>() )
 			return result.Second;
-			
+
 		if( subject is null )
 			return new PossibleErrors<ArgumentException, ArgumentNullException>(
 					new ArgumentNullException( nameof(subject) )
 				);
 
 		result = subject.Validate( nameof(subject) );
-			
+
 		if( !result.Is<Unit>() )
 			return result.Second;
-			
+
 		return Unit.Value;
 	}
-		
+
 	public async Task<IEnumerable<AccessControlEntry>> GetAccessControlEntriesAsync(
 		string purpose, DomainObject @object, Noun subject )
 	{
@@ -511,7 +499,7 @@ public class Authorized : IAuthorized
 	public async Task<IDictionary<Noun, IEnumerable<AccessControlEntry>>> GetAccessControlListsAsync( string purpose, DomainObject @object )
 	{
 		Validate( purpose, @object, false, false );
-			
+
 		Dictionary<string, IEnumerable<string>> authorizationContext =
 			PopulateAdministratorAuthorizationContext( purpose, @object );
 
@@ -604,7 +592,11 @@ public class Authorized : IAuthorized
 		await dataStore.InsertAsync( purpose, @object, subject, ace );
 	}
 
-	private static async Task SetAccessControlEntries( string purpose, DomainObject @object, Noun subject, IEnumerable<AccessControlEntryDefinition> entries, IAuthorizedDataStore dataSession, IPrincipalIdentity currentUser, IdentifierGenerator identifierGenerator )
+	private static async Task SetAccessControlEntries( string purpose, DomainObject @object, Noun subject,
+														IEnumerable<AccessControlEntryDefinition> entries,
+														IAuthorizedDataStore dataSession,
+														IPrincipalIdentity currentUser,
+														IdentifierGenerator identifierGenerator )
 	{
 		IEnumerable<AccessControlEntry> existingEntries =
 			await dataSession.GetAccessControlEntriesAsync( purpose, @object, subject );
@@ -649,7 +641,7 @@ public class Authorized : IAuthorized
 													IEnumerable<AccessControlEntryDefinition> entries )
 	{
 		Validate( purpose, @object, false, false, subject);
-			
+
 		// ReSharper disable once PossibleMultipleEnumeration
 		foreach( AccessControlEntryDefinition entry in entries )
 		{
@@ -679,14 +671,15 @@ public class Authorized : IAuthorized
 			);
 	}
 
-	public async Task SetAccessControlListsAsync( string purpose, DomainObject @object, IDictionary<Noun, IEnumerable<AccessControlEntryDefinition>> accessControlLists )
+	public async Task SetAccessControlListsAsync( string purpose, DomainObject @object,
+												IDictionary<Noun, IEnumerable<AccessControlEntryDefinition>> accessControlLists )
 	{
 		Validate( purpose, @object, false, false );
-			
+
 		foreach( KeyValuePair<Noun,IEnumerable<AccessControlEntryDefinition>> list in accessControlLists )
 		{
 			list.Key.ValidateSpecification( "subject" );
-				
+
 			// ReSharper disable once PossibleMultipleEnumeration
 			foreach( AccessControlEntryDefinition entry in list.Value )
 			{

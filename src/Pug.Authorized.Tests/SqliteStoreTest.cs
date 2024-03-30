@@ -20,42 +20,10 @@ public class SqliteStoreTest : IClassFixture<StandardTestContext>
 {
 	internal StandardTestContext TestContext { get; }
 
-	private readonly string purpose = "TEST";
-
-	private readonly DomainObject _object1 = new ()
-	{
-		Domain = "DEFAULT", Object = new Noun()
-		{
-			Type = "OBJECT", Identifier = "OBJECT1"
-
-		}
-	};
-
-	private readonly Noun _user1 = new () { Type = "USER", Identifier = "USER1" };
-	private readonly AccessControlEntry _viewAccessControlEntry;
-
 	public SqliteStoreTest( StandardTestContext testContext )
 	{
 		TestContext = testContext;
 
-		_viewAccessControlEntry = new AccessControlEntry()
-		{
-			Identifier = TestContext.GenerateNewIdentifier(),
-			Definition = new AccessControlEntryDefinition()
-			{
-				Action = TestActions.View,
-				Permissions = Permissions.Allowed,
-				Context = Array.Empty<AccessControlContextEntry>()
-			},
-			Registration = new ActionContext()
-			{
-				Actor = new Reference()
-				{
-					Type = "USER", Identifier = "ADMINISTRATOR"
-				},
-				Timestamp = testContext.TestStartDateTime
-			}
-		};
 	}
 
 	[Fact]
@@ -64,15 +32,15 @@ public class SqliteStoreTest : IClassFixture<StandardTestContext>
 	{
 		using AuthorizationDataSession dataSession = TestContext.DataStore.GetSession();
 
-		await dataSession.InsertAsync( purpose,
-								_object1,
-								_user1,
-								_viewAccessControlEntry
+		await dataSession.InsertAsync( StandardTestContext.Purpose,
+								StandardTestContext.Object1,
+								StandardTestContext.User1,
+								StandardTestContext.ViewAccessControlEntry
 
 			);
 
 		Assert.True(
-			await dataSession.AccessControlEntryExistsAsync( _viewAccessControlEntry.Identifier )
+			await dataSession.AccessControlEntryExistsAsync( StandardTestContext.ViewAccessControlEntry.Identifier )
 			);
 	}
 
@@ -83,10 +51,10 @@ public class SqliteStoreTest : IClassFixture<StandardTestContext>
 
 		await Assert.ThrowsAnyAsync<Exception>(
 				() =>
-					dataSession.InsertAsync( purpose,
-											_object1,
-											_user1,
-											_viewAccessControlEntry
+					dataSession.InsertAsync( StandardTestContext.Purpose,
+											StandardTestContext.Object1,
+											StandardTestContext.User1,
+											StandardTestContext.ViewAccessControlEntry
 
 						)
 			);
@@ -98,7 +66,7 @@ public class SqliteStoreTest : IClassFixture<StandardTestContext>
 		using AuthorizationDataSession dataSession = TestContext.DataStore.GetSession();
 
 		IEnumerable<AccessControlEntry> accessControlEntries =
-			await dataSession.GetAccessControlEntriesAsync( purpose, _object1, _user1, TestActions.View );
+			await dataSession.GetAccessControlEntriesAsync( StandardTestContext.Purpose, StandardTestContext.Object1, StandardTestContext.User1, TestActions.View );
 
 		Assert.NotEmpty(accessControlEntries);
 
@@ -112,21 +80,21 @@ public class SqliteStoreTest : IClassFixture<StandardTestContext>
 	{
 		using AuthorizationDataSession dataSession = TestContext.DataStore.GetSession();
 
-		string identifier = $"{_viewAccessControlEntry.Identifier}_1";
+		string identifier = $"{StandardTestContext.ViewAccessControlEntry.Identifier}_1";
 
 		await dataSession.InsertAsync(
-				purpose,
-				_object1,
-				_user1,
-				_viewAccessControlEntry with
+				StandardTestContext.Purpose,
+				StandardTestContext.Object1,
+				StandardTestContext.User1,
+				StandardTestContext.ViewAccessControlEntry with
 				{
 					Identifier = identifier,
-					Definition = _viewAccessControlEntry.Definition with { Action = "UPDATE" }
+					Definition = StandardTestContext.ViewAccessControlEntry.Definition with { Action = "UPDATE" }
 				}
 			);
 
 		IEnumerable<AccessControlEntry> entries =
-			await dataSession.GetAccessControlEntriesAsync( purpose, _object1, _user1 );
+			await dataSession.GetAccessControlEntriesAsync( StandardTestContext.Purpose, StandardTestContext.Object1, StandardTestContext.User1 );
 
 		Assert.True( entries.Count() == 2 );
 	}
@@ -137,12 +105,12 @@ public class SqliteStoreTest : IClassFixture<StandardTestContext>
 		using AuthorizationDataSession dataSession = TestContext.DataStore.GetSession();
 
 		IEnumerable<AccessControlEntry> entries =
-			await dataSession.GetAccessControlEntriesAsync( purpose, _object1, _user1, "UPDATE" );
+			await dataSession.GetAccessControlEntriesAsync( StandardTestContext.Purpose, StandardTestContext.Object1, StandardTestContext.User1, "UPDATE" );
 
 		Assert.True( entries.Count() == 1 && entries.First().Definition.Action == "UPDATE" );
 
 		entries =
-			await dataSession.GetAccessControlEntriesAsync( purpose, _object1, _user1, "VIEW" );
+			await dataSession.GetAccessControlEntriesAsync( StandardTestContext.Purpose, StandardTestContext.Object1, StandardTestContext.User1, "VIEW" );
 
 		Assert.True( entries.Count() == 1 && entries.First().Definition.Action == "VIEW" );
 	}
@@ -153,12 +121,12 @@ public class SqliteStoreTest : IClassFixture<StandardTestContext>
 		using AuthorizationDataSession dataSession = TestContext.DataStore.GetSession();
 
 		IDictionary<Noun, IEnumerable<AccessControlEntry>> list =
-			await dataSession.GetAccessControlListsAsync( purpose, _object1 );
+			await dataSession.GetAccessControlListsAsync( StandardTestContext.Purpose, StandardTestContext.Object1 );
 
-		Assert.True( list.Count == 1 && list.ContainsKey( _user1 ) && list[_user1].Count() == 2 );
+		Assert.True( list.Count == 1 && list.ContainsKey( StandardTestContext.User1 ) && list[StandardTestContext.User1].Count() == 2 );
 
 		list =
-			await dataSession.GetAccessControlListsAsync( purpose, _object1  with { Domain = "UNKNOWN"});
+			await dataSession.GetAccessControlListsAsync( StandardTestContext.Purpose, StandardTestContext.Object1  with { Domain = "UNKNOWN"});
 
 		Assert.True( list.Count == 0 );
 	}
@@ -168,10 +136,10 @@ public class SqliteStoreTest : IClassFixture<StandardTestContext>
 	{
 		using AuthorizationDataSession dataSession = TestContext.DataStore.GetSession();
 
-		await dataSession.DeleteAccessControlEntriesAsync( purpose, _object1, _user1 );
+		await dataSession.DeleteAccessControlEntriesAsync( StandardTestContext.Purpose, StandardTestContext.Object1, StandardTestContext.User1 );
 
 		IEnumerable<AccessControlEntry> entries =
-			await dataSession.GetAccessControlEntriesAsync( purpose, _object1, _user1 );
+			await dataSession.GetAccessControlEntriesAsync( StandardTestContext.Purpose, StandardTestContext.Object1, StandardTestContext.User1 );
 
 		Assert.True( !entries.Any() );
 	}
