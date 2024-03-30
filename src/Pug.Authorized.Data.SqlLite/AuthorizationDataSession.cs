@@ -21,8 +21,8 @@ public class AuthorizationDataSession : ApplicationDataSession, IAuthorizedDataS
 	public async Task<IEnumerable<AccessControlEntry>> GetAccessControlEntriesAsync( string purpose, DomainObject domainObject, Noun subject, string action = null )
 	{
 		return await Connection
-				.QueryAsync<AccessControlEntryDefinition, AccessControlEntry, DateTime, Reference,
-						DateTime?, Reference, AccessControlEntry>(
+				.QueryAsync<AccessControlEntryDefinition, AccessControlEntry, long, Reference,
+						long?, Reference, AccessControlEntry>(
 						@"select action, context, permissions, identifier,
                            	registrationTimestamp as timestamp, registrantType as type, registrantIdentifier as identifier, 
                            	lastUpdateTimestamp as timestamp, lastUpdaterType as type, lastUpdaterIdentifier as identifier
@@ -46,11 +46,11 @@ public class AuthorizationDataSession : ApplicationDataSession, IAuthorizedDataS
 									{
 										Definition = definition,
 										Registration = new ActionContext()
-											{ Actor = registrar, Timestamp = registrationTimestamp },
+											{ Actor = registrar, Timestamp = DateTime.FromBinary( registrationTimestamp ) },
 										LastUpdate = lastUpdateTimestamp == null
 														? null
 														: new ActionContext()
-															{ Actor = lastUpdater, Timestamp = lastUpdateTimestamp.Value }
+															{ Actor = lastUpdater, Timestamp = DateTime.FromBinary(lastUpdateTimestamp.Value) }
 									}
 					);
 	}
