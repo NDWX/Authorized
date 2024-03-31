@@ -55,14 +55,14 @@ public class Authorized : IAuthorized
 	/// </summary>
 	/// <param name="subject"></param>
 	/// <param name="action"></param>
+	/// <param name="purpose"></param>
 	/// <param name="object"></param>
 	/// <param name="context"></param>
-	/// <param name="purpose"></param>
 	/// <param name="dataStore"></param>
 	/// <returns>Lowest permission level granted to specified <paramref name="subject"/> for <paramref name="action"/> on specified <paramref name="object"/></returns>
-	private static async Task<Permissions> GetPermissionAsync( Noun subject, string action, DomainObject @object,
+	private static async Task<Permissions> GetPermissionAsync( Noun subject, string action, string purpose,
+																DomainObject @object,
 																IDictionary<string, IEnumerable<string>> context,
-																string purpose,
 																IAuthorizedDataStore dataStore )
 	{
 		// get object access control entries
@@ -75,10 +75,11 @@ public class Authorized : IAuthorized
 
 		Permissions permissions = Permissions.None;
 
-		foreach( AccessControlEntry accessControlEntry in accessControlEntries )
+		foreach( AccessControlEntryDefinition accessControlEntryDefinition in
+				accessControlEntries.Select( x => x.Definition ) )
 		{
 			bool contextMatched =
-				accessControlEntry.Definition.Context.All(
+				accessControlEntryDefinition.Context.All(
 						contextEntry => context.ContainsKey( contextEntry.Key ) &&
 										contextEntry.Evaluate( context[contextEntry.Key] )
 					);
@@ -86,11 +87,11 @@ public class Authorized : IAuthorized
 			if( !contextMatched )
 				continue;
 
-			if( accessControlEntry.Definition.Permissions == Permissions.Denied )
+			if( accessControlEntryDefinition.Permissions == Permissions.Denied )
 				return Permissions.Denied;
 
-			if( permissions < accessControlEntry.Definition.Permissions )
-				permissions = accessControlEntry.Definition.Permissions;
+			if( permissions < accessControlEntryDefinition.Permissions )
+				permissions = accessControlEntryDefinition.Permissions;
 		}
 
 		return permissions;
@@ -132,14 +133,14 @@ public class Authorized : IAuthorized
 	///		</item>
 	/// </list>
 	/// </returns>
-	private async Task<Permissions> GetEffectivePermissionAsync( Noun subject, string action, DomainObject @object,
-																IDictionary<string, IEnumerable<string>> context,
-																string purpose,
-																IAuthorizedDataStore dataSession )
+	private static async Task<Permissions> GetEffectivePermissionAsync( Noun subject, string action, DomainObject @object,
+																		IDictionary<string, IEnumerable<string>> context,
+																		string purpose,
+																		IAuthorizedDataStore dataSession )
 	{
 		// check authorization for specified parameters
 		Permissions permissions =
-			await GetPermissionAsync( subject, action, @object, context, purpose, dataSession )
+			await GetPermissionAsync( subject, action, purpose, @object, context, dataSession )
 				.ConfigureAwait( false );
 
 		if( permissions != Permissions.None )
@@ -152,12 +153,10 @@ public class Authorized : IAuthorized
 			if( !string.IsNullOrWhiteSpace( @object.Object.Identifier ) )
 			{
 				permissions =
-					await GetPermissionAsync( subject, action,
-											@object with
-											{
-												Object = @object.Object with { Identifier = string.Empty }
-											},
-											context, purpose, dataSession );
+					await GetPermissionAsync( subject, action, purpose, @object with
+					{
+						Object = @object.Object with { Identifier = string.Empty }
+					}, context, dataSession );
 
 				if( permissions != Permissions.None )
 					return permissions;
@@ -166,8 +165,7 @@ public class Authorized : IAuthorized
 			// check authorization for action
 			permissions =
 				await GetPermissionAsync( subject, action,
-										@object with { Object = null }, context,
-										purpose, dataSession );
+										purpose, @object with { Object = null }, context, dataSession );
 
 			if( permissions != Permissions.None )
 				return permissions;

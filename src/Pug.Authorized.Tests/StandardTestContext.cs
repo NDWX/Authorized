@@ -44,7 +44,7 @@ public class StandardTestContext : IDisposable
 		Authorized = new Authorized(
 				new Options
 				{
-					ManagementDomain = string.Empty,
+					ManagementDomain = "string.Empty",
 					AdministratorRole = "ADMINISTRATORS",
 					AdministrativeActionGrantees = AdministrativeActionGrantees.AllowedUsers
 				},

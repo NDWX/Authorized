@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Threading.Tasks;
 using Pug.Application.Security;
 using Xunit;
@@ -127,6 +128,21 @@ public class StandardTests : IClassFixture<StandardTestContext>
 							Context = Array.Empty<AccessControlContextEntry>()
 						}
 					},
+					[group1Subject] = new[]
+					{
+						new AccessControlEntryDefinition()
+						{
+							Action = "MODIFY",
+							Permissions = Permissions.Allowed,
+							Context = Array.Empty<AccessControlContextEntry>()
+						},
+						new AccessControlEntryDefinition()
+						{
+							Action = "DELETE",
+							Permissions = Permissions.Denied,
+							Context = Array.Empty<AccessControlContextEntry>()
+						}
+					},
 					[group2Subject] = new[]
 					{
 						new AccessControlEntryDefinition()
@@ -146,6 +162,76 @@ public class StandardTests : IClassFixture<StandardTestContext>
 			);
 
 		Assert.True( true );
+	}
+
+	[Fact]
+	public async Task AccessControlListShouldBeRetrievedCorrectly()
+	{
+		IDictionary<Noun, IEnumerable<AccessControlEntry>> accessControlLists =
+			await TestContext.Authorized.GetAccessControlListsAsync( StandardTestContext.Purpose, _domainObject1 );
+
+		IEnumerable<AccessControlEntry> accessControlEntries = accessControlLists[userSubject];
+
+		Assert.Equal( 2, accessControlEntries.Count() );
+
+		IEnumerable<AccessControlEntry> aces = accessControlEntries.Where(x => x.Definition.Action == "READ");
+		Assert.Equal( true, aces.Any() );
+		Assert.Equal( Permissions.Allowed, aces.First().Definition.Permissions);
+
+		aces = accessControlEntries.Where(x => x.Definition.Action == "MODIFY");
+		Assert.Equal( true, aces.Any() );
+		Assert.Equal( Permissions.Denied, aces.First().Definition.Permissions);
+
+		accessControlEntries = accessControlLists[group1Subject];
+
+		Assert.Equal( 1, accessControlEntries.Count() );
+
+		aces = accessControlEntries.Where(x => x.Definition.Action == "DELETE");
+		Assert.Equal( true, aces.Any() );
+		Assert.Equal( Permissions.Denied, aces.First().Definition.Permissions);
+	}
+
+	[Fact]
+	public async Task AccessControlEntriesShouldBeRetrievedCorrectly()
+	{
+		IEnumerable<AccessControlEntry> accessControlEntries =
+			await TestContext.Authorized.GetAccessControlEntriesAsync( StandardTestContext.Purpose, _domainObject1, userSubject );
+
+		Assert.Equal( 2, accessControlEntries.Count() );
+
+		IEnumerable<AccessControlEntry> aces = accessControlEntries.Where(x => x.Definition.Action == "READ");
+		Assert.Equal( true, aces.Any() );
+		Assert.Equal( Permissions.Allowed, aces.First().Definition.Permissions);
+
+		aces = accessControlEntries.Where(x => x.Definition.Action == "MODIFY");
+		Assert.Equal( true, aces.Any() );
+		Assert.Equal( Permissions.Denied, aces.First().Definition.Permissions);
+	}
+
+	[Fact]
+	public async Task ExistingAccessControlEntryMustBeCorrectlyUpdated()
+	{
+		TestContext.Authorized.SetAccessControlEntriesAsync(
+				StandardTestContext.Purpose, _domainObject2, group1Subject,
+				new[]
+				{
+					new AccessControlEntryDefinition()
+					{
+						Action = "MODIFY",
+						Permissions = Permissions.Denied,
+						Context = Array.Empty<AccessControlContextEntry>()
+					}
+				}
+			);
+
+		IEnumerable<AccessControlEntry> accessControlEntries =
+			await TestContext.Authorized.GetAccessControlEntriesAsync( StandardTestContext.Purpose, _domainObject2, group1Subject );
+
+		Assert.Equal( 1, accessControlEntries.Count() );
+
+		IEnumerable<AccessControlEntry> aces = accessControlEntries.Where(x => x.Definition.Action == "MODIFY");
+		Assert.Equal( true, aces.Any() );
+		Assert.Equal( Permissions.Denied, aces.First().Definition.Permissions);
 	}
 
 	[Fact]
