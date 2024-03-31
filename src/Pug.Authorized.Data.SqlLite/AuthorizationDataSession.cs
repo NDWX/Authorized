@@ -117,7 +117,7 @@ public class AuthorizationDataSession : ApplicationDataSession, IAuthorizedDataS
 				@"delete from authorizations 
        					where purpose = @purpose and domain = @domain and 
        					      objectType = @objectType and objectIdentifier = @objectIdentifier and
-       					      (@subjecType is null or (subjectType = @subjectType and subjectIdentifier = @subjectIdentifier))",
+       					      (@subjectType is null or (subjectType = @subjectType and subjectIdentifier = @subjectIdentifier))",
 				new
 				{
 					domain = domainObject.Domain,
