@@ -175,19 +175,19 @@ public class StandardTests : IClassFixture<StandardTestContext>
 		Assert.Equal( 2, accessControlEntries.Count() );
 
 		IEnumerable<AccessControlEntry> aces = accessControlEntries.Where(x => x.Definition.Action == "READ");
-		Assert.Equal( true, aces.Any() );
+		Assert.True( aces.Any() );
 		Assert.Equal( Permissions.Allowed, aces.First().Definition.Permissions);
 
 		aces = accessControlEntries.Where(x => x.Definition.Action == "MODIFY");
-		Assert.Equal( true, aces.Any() );
+		Assert.True( aces.Any() );
 		Assert.Equal( Permissions.Denied, aces.First().Definition.Permissions);
 
 		accessControlEntries = accessControlLists[group1Subject];
 
-		Assert.Equal( 1, accessControlEntries.Count() );
+		Assert.Single( accessControlEntries);
 
 		aces = accessControlEntries.Where(x => x.Definition.Action == "DELETE");
-		Assert.Equal( true, aces.Any() );
+		Assert.True( aces.Any() );
 		Assert.Equal( Permissions.Denied, aces.First().Definition.Permissions);
 	}
 
@@ -200,18 +200,18 @@ public class StandardTests : IClassFixture<StandardTestContext>
 		Assert.Equal( 2, accessControlEntries.Count() );
 
 		IEnumerable<AccessControlEntry> aces = accessControlEntries.Where(x => x.Definition.Action == "READ");
-		Assert.Equal( true, aces.Any() );
+		Assert.True( aces.Any() );
 		Assert.Equal( Permissions.Allowed, aces.First().Definition.Permissions);
 
 		aces = accessControlEntries.Where(x => x.Definition.Action == "MODIFY");
-		Assert.Equal( true, aces.Any() );
+		Assert.True( aces.Any() );
 		Assert.Equal( Permissions.Denied, aces.First().Definition.Permissions);
 	}
 
 	[Fact]
 	public async Task ExistingAccessControlEntryMustBeCorrectlyUpdated()
 	{
-		TestContext.Authorized.SetAccessControlEntriesAsync(
+		await TestContext.Authorized.SetAccessControlEntriesAsync(
 				StandardTestContext.Purpose, _domainObject2, group1Subject,
 				new[]
 				{
@@ -227,10 +227,10 @@ public class StandardTests : IClassFixture<StandardTestContext>
 		IEnumerable<AccessControlEntry> accessControlEntries =
 			await TestContext.Authorized.GetAccessControlEntriesAsync( StandardTestContext.Purpose, _domainObject2, group1Subject );
 
-		Assert.Equal( 1, accessControlEntries.Count() );
+		Assert.Single( accessControlEntries);
 
 		IEnumerable<AccessControlEntry> aces = accessControlEntries.Where(x => x.Definition.Action == "MODIFY");
-		Assert.Equal( true, aces.Any() );
+		Assert.True( aces.Any() );
 		Assert.Equal( Permissions.Denied, aces.First().Definition.Permissions);
 	}
 
