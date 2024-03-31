@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="SqlDialectMappings">
-    <file url="file://$PROJECT_DIR$/src/Pug.Authorize.Data.SqlLite/AuthorizationDataSession.cs" dialect="SQLite" />
-    <file url="file://$PROJECT_DIR$/src/Pug.Authorize.Data.SqlLite/AuthorizationDataStore.cs" dialect="SQLite" />
+    <file url="file://$PROJECT_DIR$/src/Pug.Authorized.Data.SqlLite/AuthorizationDataSession.cs" dialect="SQLite" />
+    <file url="file://$PROJECT_DIR$/src/Pug.Authorized.Data.SqlLite/AuthorizationDataStore.cs" dialect="SQLite" />
   </component>
 </project>

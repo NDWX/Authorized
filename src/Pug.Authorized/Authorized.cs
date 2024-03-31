@@ -649,7 +649,7 @@ public class Authorized : IAuthorized
 		}
 
 		Dictionary<string, IEnumerable<string>> authorizationContext =
-			PopulateAdministratorAuthorizationContext( purpose, @object, null );
+			PopulateAdministratorAuthorizationContext( purpose, @object );
 
 		Noun authorizationSubject = GetCurrentSubject();
 
@@ -688,7 +688,7 @@ public class Authorized : IAuthorized
 		}
 
 		Dictionary<string, IEnumerable<string>> authorizationContext =
-			PopulateAdministratorAuthorizationContext( purpose, @object, null );
+			PopulateAdministratorAuthorizationContext( purpose, @object );
 
 		Noun authorizationSubject = GetCurrentSubject();
 

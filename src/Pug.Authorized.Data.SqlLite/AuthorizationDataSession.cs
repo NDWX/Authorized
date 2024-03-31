@@ -18,7 +18,7 @@ public class AuthorizationDataSession : ApplicationDataSession, IAuthorizedDataS
 		SqlMapper.AddTypeHandler( AccessControlContextEntryTypeHandler.Instance );
 		SqlMapper.AddTypeHandler( AccessControlContextEntriesTypeHandler.Instance );
 	}
-	public async Task<IEnumerable<AccessControlEntry>> GetAccessControlEntriesAsync( string purpose, DomainObject domainObject, Noun subject, string action = null )
+	public async Task<IEnumerable<AccessControlEntry>> GetAccessControlEntriesAsync( string purpose, DomainObject domainObject, Noun subject, string? action = null )
 	{
 		return await Connection
 				.QueryAsync<AccessControlEntryDefinition, AccessControlEntry, long, Reference,
@@ -41,18 +41,28 @@ public class AuthorizationDataSession : ApplicationDataSession, IAuthorizedDataS
 							action
 						},
 						splitOn: "identifier, timestamp, type, timestamp, type",
-						map: ( definition, entry, registrationTimestamp, registrar, lastUpdateTimestamp, lastUpdater ) =>
-							entry with
-									{
-										Definition = definition,
-										Registration = new ActionContext()
-											{ Actor = registrar, Timestamp = DateTime.FromBinary( registrationTimestamp ) },
-										LastUpdate = lastUpdateTimestamp == null
-														? null
-														: new ActionContext()
-															{ Actor = lastUpdater, Timestamp = DateTime.FromBinary(lastUpdateTimestamp.Value) }
-									}
-					);
+						map: ( definition, entry, registrationTimestamp, registrar, lastUpdateTimestamp,
+								lastUpdater ) =>
+						{
+
+							return entry with
+							{
+								Definition = definition,
+								Registration = new ActionContext()
+								{
+									Actor = registrar,
+									Timestamp = DateTime.FromBinary( registrationTimestamp )
+								},
+								LastUpdate = lastUpdateTimestamp == null
+												? null
+												: new ActionContext()
+												{
+													Actor = lastUpdater,
+													Timestamp =
+														DateTime.FromBinary( lastUpdateTimestamp.Value )
+												}
+							};
+						} );
 	}
 
 	public async Task<IDictionary<Noun, IEnumerable<AccessControlEntry>>> GetAccessControlListsAsync( string purpose, DomainObject domainObject )
@@ -101,21 +111,21 @@ public class AuthorizationDataSession : ApplicationDataSession, IAuthorizedDataS
 				.ToDictionary( x => x.Key, x => x.Value );
 	}
 
-	public async Task DeleteAccessControlEntriesAsync( string purpose, DomainObject domainObject, Noun subject = null )
+	public async Task DeleteAccessControlEntriesAsync( string purpose, DomainObject domainObject, Noun? subject = null )
 	{
 		await Connection.ExecuteAsync(
 				@"delete from authorizations 
        					where purpose = @purpose and domain = @domain and 
        					      objectType = @objectType and objectIdentifier = @objectIdentifier and
-       					      subjectType = @subjectType and subjectIdentifier = @subjectIdentifier",
+       					      (@subjecType is null or (subjectType = @subjectType and subjectIdentifier = @subjectIdentifier))",
 				new
 				{
 					domain = domainObject.Domain,
 					purpose,
 					objectType = domainObject.Object.Type,
 					objectIdentifier = domainObject.Object.Identifier,
-					subjectType = subject.Type,
-					subjectIdentifier = subject.Identifier
+					subjectType = subject?.Type,
+					subjectIdentifier = subject?.Identifier
 				}
 			);
 	}
@@ -135,10 +145,12 @@ public class AuthorizationDataSession : ApplicationDataSession, IAuthorizedDataS
 		int rows = await Connection.ExecuteAsync(
 				@"insert into authorizations(identifier, domain, purpose, objectType, objectIdentifier, 
 												subjectType, subjectIdentifier, action, context, permissions, 
-                           						registrationTimestamp, registrantType, registrantIdentifier)
+                           						registrationTimestamp, registrantType, registrantIdentifier,
+                           						lastUpdateTimestamp, lastUpdaterType, lastUpdaterIdentifier)
                            				values(@identifier, @domain, @purpose, @objectType, @objectIdentifier, 
 												@subjectType, @subjectIdentifier, @action, @context, @permissions, 
-                           						@registrationTimestamp, @registrantType, @registrantIdentifier)",
+                           						@registrationTimestamp, @registrantType, @registrantIdentifier,
+                           				       @lastUpdateTimestamp, @lastUpdaterType, @lastUpdaterIdentifier)",
 				new
 				{
 					identifier = accessControlEntry.Identifier,
@@ -153,7 +165,10 @@ public class AuthorizationDataSession : ApplicationDataSession, IAuthorizedDataS
 					permissions = accessControlEntry.Definition.Permissions,
 					registrationTimestamp = accessControlEntry.Registration.Timestamp.ToBinary(),
 					registrantType = accessControlEntry.Registration.Actor.Type,
-					registrantIdentifier = accessControlEntry.Registration.Actor.Identifier
+					registrantIdentifier = accessControlEntry.Registration.Actor.Identifier,
+					lastUpdateTimestamp = accessControlEntry.LastUpdate?.Timestamp,
+					lastUpdaterType = accessControlEntry.LastUpdate?.Actor.Type ?? string.Empty,
+					lastUpdaterIdentifier = accessControlEntry.LastUpdate?.Actor.Identifier ?? string.Empty
 				},
 				commandType: CommandType.Text
 			);

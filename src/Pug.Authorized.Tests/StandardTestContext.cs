@@ -11,21 +11,6 @@ public class StandardTestContext : IDisposable
 {
 	public static readonly string Purpose = "TEST";
 
-	public static readonly DomainObject Object1 = new ()
-	{
-		Domain = "DEFAULT", Object = new Noun()
-		{
-			Type = "OBJECT", Identifier = "OBJECT1"
-
-		}
-	};
-
-	public static readonly Noun User1 = new () { Type = SubjectTypes.User, Identifier = "USER1" };
-
-	private static AccessControlEntry viewAccessControlEntry;
-	public static AccessControlEntry ViewAccessControlEntry => viewAccessControlEntry;
-
-
 	private readonly DateTime _testStartDateTime = DateTime.Now;
 	private readonly string DataStoreLocation;
 	private readonly DummySessionUserIdentityAccessor _dummySessionUserIdentityAccessor;
@@ -69,24 +54,6 @@ public class StandardTestContext : IDisposable
 				DataStore
 			);
 
-		viewAccessControlEntry = new AccessControlEntry()
-		{
-			Identifier = _identifierGenerator.GetNext(),
-			Definition = new AccessControlEntryDefinition()
-			{
-				Action = TestActions.View,
-				Permissions = Permissions.Allowed,
-				Context = Array.Empty<AccessControlContextEntry>()
-			},
-			Registration = new ActionContext()
-			{
-				Actor = new Reference()
-				{
-					Type = "USER", Identifier = "ADMINISTRATOR"
-				},
-				Timestamp = TestStartDateTime
-			}
-		};
 	}
 
 	public void SetCurrentUser(string username)

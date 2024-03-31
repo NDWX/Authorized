@@ -5,6 +5,7 @@ namespace Pug.Authorized;
 
 public static class AccessControlContextExtensions
 {
+	// ReSharper disable once HeapView.ClosureAllocation
 	public static bool Evaluate(this AccessControlContextEntry context, IEnumerable<string> values)
 	{
 		switch(context.MatchType)
@@ -25,7 +26,7 @@ public static class AccessControlContextExtensions
 			case AccessControlContextMatchType.NotIn:
 				return !values.Distinct().Intersect(context.Values.Distinct()).Any();
 		}
-			
+
 		return false;
 	}
 }

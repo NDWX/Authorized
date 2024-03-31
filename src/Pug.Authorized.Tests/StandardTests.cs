@@ -176,7 +176,7 @@ public class StandardTests : IClassFixture<StandardTestContext>
 		Permissions permissions = await TestContext.Authorized.IsAuthorizedAsync(
 										userSubject,
 										"MODIFY",
-										StandardTestContext.Object1,
+										_domainObject1,
 										new Dictionary<string, IEnumerable<string>>(),
 										StandardTestContext.Purpose
 									);
