@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
+        <TargetFrameworks>netstandard2.0;netcoreapp3.0;net5.0</TargetFrameworks>
         <LangVersion>10</LangVersion>
         <Title>Pug.Authorized.Models</Title>
         <Company>Pug Computing</Company>
@@ -17,7 +17,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Pug.Effable" Version="3.0.3" />
+        <PackageReference Include="Pug.Effable" Version="2.0.6" />
         <PackageReference Include="SonarAnalyzer.CSharp" Version="9.19.0.84025">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

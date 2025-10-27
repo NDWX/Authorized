@@ -8,7 +8,7 @@ public sealed record Noun
 	public string Type
 	{
 		get;
-#if NET6_0_OR_GREATER
+#if NET5_0_OR_GREATER
 		init;
 #else
 			set;
@@ -19,7 +19,7 @@ public sealed record Noun
 	public string Identifier
 	{
 		get;
-#if NET6_0_OR_GREATER
+#if NET5_0_OR_GREATER
 		init;
 #else
 			set;

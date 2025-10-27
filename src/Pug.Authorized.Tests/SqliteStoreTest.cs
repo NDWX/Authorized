@@ -45,7 +45,7 @@ public class SqliteStoreTest : IClassFixture<StandardTestContext>
 				Permissions = Permissions.Allowed,
 				Context = Array.Empty<AccessControlContextEntry>()
 			},
-			Registration = new ActionContext()
+			Registration = new ActionContext<Reference>()
 			{
 				Actor = new Reference()
 				{
@@ -177,5 +177,4 @@ public class SqliteStoreTest : IClassFixture<StandardTestContext>
 
 		Assert.True( !entries.Any() );
 	}
-
 }

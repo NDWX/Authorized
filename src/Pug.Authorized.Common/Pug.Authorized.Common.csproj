@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
+		<TargetFrameworks>netstandard2.0;netcoreapp3.0;net6.0</TargetFrameworks>
 		<LangVersion>10</LangVersion>
 		<RootNamespace>Pug.Authorized</RootNamespace>
 		<Title>Pug.Authorized.Common</Title>
@@ -19,7 +19,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="Pug.Application.Security" Version="2.1.1" />
+	  <PackageReference Include="Pug.Application.Security" Version="2.1.2" />
 	  <PackageReference Include="Pug.Core" Version="2.0.1" />
 	  <PackageReference Include="SonarAnalyzer.CSharp" Version="9.19.0.84025">
 	    <PrivateAssets>all</PrivateAssets>

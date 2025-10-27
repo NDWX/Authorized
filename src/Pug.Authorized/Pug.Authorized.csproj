@@ -1,7 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
 		<RootNamespace>Pug.Authorized</RootNamespace>
 		<Title>Pug.Authorized</Title>
 		<Company>Pug Computing</Company>
@@ -39,6 +40,7 @@
 
 	<ItemGroup>
 	  <PackageReference Include="IdGen" Version="3.0.3" />
+	  <PackageReference Include="Pug.Application.Data" Version="1.3.0" />
 	  <PackageReference Include="SonarAnalyzer.CSharp" Version="9.19.0.84025">
 	    <PrivateAssets>all</PrivateAssets>
 	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
