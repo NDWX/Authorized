@@ -3,7 +3,7 @@ name: master - build and NuGet publish
 on:
   push:
     branches:
-      - master
+      - main
 
 env:
   BuildConfiguration: release
