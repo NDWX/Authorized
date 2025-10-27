@@ -65,6 +65,15 @@ jobs:
       - name: Create packages base folder
         run: mkdir packages
 
+      - name: Pack Models project
+        run: dotnet pack --output ${{env.PackagesBaseFolder}} --nologo --configuration ${{env.BuildConfiguration}} ${{env.ModelsProject}}
+
+      - name: Publish Models NuGet package to NuGet.org
+        run: dotnet nuget push ${{env.PackagesBaseFolder}}/*.nupkg --api-key ${{secrets.NUGET_APIKEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+      - name: Clear packages folder
+        run: rm packages/*.nupkg
+
       - name: Pack Common project
         run: dotnet pack --output ${{env.PackagesBaseFolder}} --nologo --configuration ${{env.BuildConfiguration}} ${{env.CommonProject}}
 
