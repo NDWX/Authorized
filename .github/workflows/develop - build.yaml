@@ -14,7 +14,7 @@ env:
   DataCommonProject: src/Pug.Authorized.Data.Common/Pug.Authorized.Data.Common.csproj
   SqlLiteDataProject: src/Pug.Authorized.Data.SqlLite/Pug.Authorized.Data.SqlLite.csproj
   DependencyInjectionProject: src/Pug.Authorized.DependencyInjection/Pug.Authorized.DependencyInjection.csproj
-  RestProject: src/Pug.Authorized.Rest/Pug.Authorized.Rest.csproj
+  RestProject: src/Pug.Authorized.WebApi/Pug.Authorized.WebApi.csproj
 
 jobs:
   build:

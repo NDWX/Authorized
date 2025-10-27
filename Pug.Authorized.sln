@@ -8,7 +8,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pug.Authorized.Tests", "src
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pug.Authorized.DependencyInjection", "src\Pug.Authorized.DependencyInjection\Pug.Authorized.DependencyInjection.csproj", "{21FBEBCD-574B-4975-9D5E-AF87198C299F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pug.Authorized.Rest", "src\Pug.Authorized.Rest\Pug.Authorized.Rest.csproj", "{81DEF572-4B2F-4558-ACFE-C5DD1AA9A966}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pug.Authorized.WebApi", "src\Pug.Authorized.WebApi\Pug.Authorized.WebApi.csproj", "{81DEF572-4B2F-4558-ACFE-C5DD1AA9A966}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pug.Authorized.Data.Common", "src\Pug.Authorized.Data.Common\Pug.Authorized.Data.Common.csproj", "{1C20C4FA-1E9A-433B-96E5-5B6F4F1E5A07}"
 EndProject

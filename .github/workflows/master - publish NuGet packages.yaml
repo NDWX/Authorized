@@ -12,7 +12,7 @@ env:
   MainProject: src/Pug.Authorized/Pug.Authorized.csproj
   DataCommonProject: src/Pug.Authorized.Data.Common/Pug.Authorized.Data.Common.csproj
   DependencyInjectionProject: src/Pug.Authorized.DependencyInjection/Pug.Authorized.DependencyInjection.csproj
-  RestProject: src/Pug.Authorized.Rest/Pug.Authorized.Rest.csproj
+  RestProject: src/Pug.Authorized.WebApi/Pug.Authorized.WebApi.csproj
   PackagesBaseFolder: packages
 
 jobs:

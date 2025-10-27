@@ -1,11 +1,22 @@
-﻿#if NET8_0
-using Microsoft.AspNetCore.OpenApi;
-#endif
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Pug.Authorized.Rest;
 
 public static class WebApplicationExtensions
 {
+	private static RouteHandlerBuilder Document( this RouteHandlerBuilder routeHandlerBuilder, string name )
+	{
+		return routeHandlerBuilder 
+			.WithName( name )
+			.WithTags( "Authorizations" )
+#if NET8_0_OR_GREATER
+			.WithOpenApi()
+#endif
+			;
+	}
+	
 	public static WebApplication MapAuthorizationApis( this WebApplication webApplication,
 														string basePath = "/authorizations" )
 	{
@@ -53,16 +64,5 @@ public static class WebApplicationExtensions
 					.Document( nameof(webApiHandler.SetAccessControlListsAsync) );
 
 		return webApplication;
-	}
-
-	private static RouteHandlerBuilder Document( this RouteHandlerBuilder routeHandlerBuilder, string name )
-	{
-		return routeHandlerBuilder 
-			.WithName( name )
-			.WithTags( "Authorizations" )
-#if NET8_0
-			.WithOpenApi()
-#endif
-			;
 	}
 }
