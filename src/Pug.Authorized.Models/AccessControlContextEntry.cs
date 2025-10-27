@@ -10,7 +10,7 @@ public record AccessControlContextEntry
 	public string Key
 	{
 		get;
-#if NET6_0_OR_GREATER
+#if NET5_0_OR_GREATER
 		init;
 #else
 			set;
@@ -21,7 +21,7 @@ public record AccessControlContextEntry
 	public AccessControlContextMatchType  MatchType
 	{
 		get;
-#if NET6_0_OR_GREATER
+#if NET5_0_OR_GREATER
 		init;
 #else
 			set;
@@ -32,7 +32,7 @@ public record AccessControlContextEntry
 	public IEnumerable<string> Values
 	{
 		get;
-#if NET6_0_OR_GREATER
+#if NET5_0_OR_GREATER
 		init;
 #else
 			set;

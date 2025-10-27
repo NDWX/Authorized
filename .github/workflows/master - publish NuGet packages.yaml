@@ -3,7 +3,7 @@ name: master - build and NuGet publish
 on:
   push:
     branches:
-      - master
+      - main
 
 env:
   BuildConfiguration: release
@@ -66,10 +66,7 @@ jobs:
         run: mkdir packages
 
       - name: Pack Common project
-        run: dotnet pack --no-build --output ${{env.PackagesBaseFolder}} --nologo --configuration ${{env.BuildConfiguration}} ${{env.CommonProject}}
-
-      - name: Publish Common NuGet package
-        run: dotnet nuget push ${{env.PackagesBaseFolder}}/*.nupkg --skip-duplicate
+        run: dotnet pack --output ${{env.PackagesBaseFolder}} --nologo --configuration ${{env.BuildConfiguration}} ${{env.CommonProject}}
 
       - name: Publish Common NuGet package to NuGet.org
         run: dotnet nuget push ${{env.PackagesBaseFolder}}/*.nupkg --api-key ${{secrets.NUGET_APIKEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
@@ -78,10 +75,7 @@ jobs:
         run: rm packages/*.nupkg
 
       - name: Pack DataCommonProject project
-        run: dotnet pack --no-build --output ${{env.PackagesBaseFolder}} --nologo --configuration ${{env.BuildConfiguration}} ${{env.DataCommonProject}}
-
-      - name: Publish DataCommon NuGet package
-        run: dotnet nuget push ${{env.PackagesBaseFolder}}/*.nupkg --skip-duplicate
+        run: dotnet pack --output ${{env.PackagesBaseFolder}} --nologo --configuration ${{env.BuildConfiguration}} ${{env.DataCommonProject}}
 
       - name: Publish DataCommon NuGet package to NuGet.org
         run: dotnet nuget push ${{env.PackagesBaseFolder}}/*.nupkg --api-key ${{secrets.NUGET_APIKEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
@@ -90,10 +84,7 @@ jobs:
         run: rm packages/*.nupkg
 
       - name: Pack Main project
-        run: dotnet pack --no-build --output ${{env.PackagesBaseFolder}} --nologo --configuration ${{env.BuildConfiguration}} ${{env.MainProject}}
-
-      - name: Publish Main NuGet package
-        run: dotnet nuget push ${{env.PackagesBaseFolder}}/*.nupkg --skip-duplicate
+        run: dotnet pack --output ${{env.PackagesBaseFolder}} --nologo --configuration ${{env.BuildConfiguration}} ${{env.MainProject}}
 
       - name: Publish Main NuGet package to NuGet.org
         run: dotnet nuget push ${{env.PackagesBaseFolder}}/*.nupkg --api-key ${{secrets.NUGET_APIKEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
@@ -102,10 +93,7 @@ jobs:
         run: rm packages/*.nupkg
 
       - name: Pack DependencyInjection project
-        run: dotnet pack --no-build --output ${{env.PackagesBaseFolder}} --nologo --configuration ${{env.BuildConfiguration}} ${{env.DependencyInjectionProject}}
-
-      - name: Publish DependencyInjection NuGet package
-        run: dotnet nuget push ${{env.PackagesBaseFolder}}/*.nupkg --skip-duplicate
+        run: dotnet pack --output ${{env.PackagesBaseFolder}} --nologo --configuration ${{env.BuildConfiguration}} ${{env.DependencyInjectionProject}}
 
       - name: Publish DependencyInjection NuGet package to NuGet.org
         run: dotnet nuget push ${{env.PackagesBaseFolder}}/*.nupkg --api-key ${{secrets.NUGET_APIKEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
@@ -114,10 +102,7 @@ jobs:
         run: rm packages/*.nupkg
 
       - name: Pack Rest project
-        run: dotnet pack --no-build --output ${{env.PackagesBaseFolder}} --nologo --configuration ${{env.BuildConfiguration}} ${{env.RestProject}}
-
-      - name: Publish Rest NuGet package
-        run: dotnet nuget push ${{env.PackagesBaseFolder}}/*.nupkg --skip-duplicate
+        run: dotnet pack --output ${{env.PackagesBaseFolder}} --nologo --configuration ${{env.BuildConfiguration}} ${{env.RestProject}}
 
       - name: Publish Rest NuGet package to NuGet.org
         run: dotnet nuget push ${{env.PackagesBaseFolder}}/*.nupkg --api-key ${{secrets.NUGET_APIKEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate

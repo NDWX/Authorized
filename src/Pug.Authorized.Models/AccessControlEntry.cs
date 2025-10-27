@@ -9,10 +9,10 @@ public record AccessControlEntry : Identifiable<string>
 	public string Identifier
 	{
 		get;
-#if NETSTANDARD2_0
-			set;
-#else
+#if NET6_0_OR_GREATER
 		init;
+#else
+		set;
 #endif
 	}
 
@@ -20,32 +20,32 @@ public record AccessControlEntry : Identifiable<string>
 	public AccessControlEntryDefinition Definition
 	{
 		get;
-#if NETSTANDARD2_0
-			set;
-#else
+#if net5_0_or_greater
 		init;
+#else
+		set;
 #endif
 	}
 
 	[DataMember(IsRequired = true)]
-	public ActionContext Registration
+	public ActionContext<Reference> Registration
 	{
 		get;
-#if NETSTANDARD2_0
-			set;
-#else
+#if NET5_0_OR_GREATER
 		init;
+#else
+		set;
 #endif
 	}
 
 	[DataMember]
-	public ActionContext LastUpdate
+	public ActionContext<Reference> LastUpdate
 	{
 		get;
-#if NETSTANDARD2_0
-			set;
-#else
+#if NET5_0_OR_GREATER
 		init;
+#else
+		set;
 #endif
 	}
 }

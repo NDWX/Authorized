@@ -9,7 +9,7 @@ public record AccessControlEntryDefinition
 	public string Action
 	{
 		get;
-#if NET6_0_OR_GREATER
+#if NET5_0_OR_GREATER
 		init;
 #else
 			set;
@@ -23,7 +23,7 @@ public record AccessControlEntryDefinition
 	public IEnumerable<AccessControlContextEntry> Context
 	{
 		get;
-#if NET6_0_OR_GREATER
+#if NET5_0_OR_GREATER
 		init;
 #else
 			set;
@@ -34,7 +34,7 @@ public record AccessControlEntryDefinition
 	public Permissions Permissions
 	{
 		get;
-#if NET6_0_OR_GREATER
+#if NET5_0_OR_GREATER
 		init;
 #else
 			set;

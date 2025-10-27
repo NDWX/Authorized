@@ -1,5 +1,4 @@
-﻿using System;
-using Pug.Lang;
+﻿using Pug.Lang;
 
 namespace Pug.Authorized;
 
@@ -10,18 +9,18 @@ public static class ModelExtensions
 	{
 		if( subject == null )
 			return new PossibleErrors<ArgumentException, ArgumentNullException>(
-					new ArgumentNullException( parameterName )
-				);
+				new ArgumentNullException( parameterName )
+			);
 
 		if( string.IsNullOrWhiteSpace( subject.Type ) )
 			return new PossibleErrors<ArgumentException, ArgumentNullException>(
-					new ArgumentException( ExceptionMessages.SUBJECT_TYPE_MUST_BE_SPECIFIED, parameterName )
-				);
+				new ArgumentException( ExceptionMessages.SUBJECT_TYPE_MUST_BE_SPECIFIED, parameterName )
+			);
 
 		if( identifierRequired && string.IsNullOrWhiteSpace( subject.Identifier ) )
 			return new PossibleErrors<ArgumentException, ArgumentNullException>(
-					new ArgumentException( ExceptionMessages.SUBJECT_IDENTIFIER_MUST_BE_SPECIFIED, parameterName )
-				);
+				new ArgumentException( ExceptionMessages.SUBJECT_IDENTIFIER_MUST_BE_SPECIFIED, parameterName )
+			);
 
 		return Unit.Value;
 	}
@@ -30,13 +29,13 @@ public static class ModelExtensions
 	{
 		if( @object == null )
 			return new PossibleErrors<ArgumentException, ArgumentNullException>(
-					new ArgumentNullException( nameof(@object) )
-				);
+				new ArgumentNullException( nameof(@object) )
+			);
 			
 		if( objectRequired && @object.Object == null ) 
 			return new PossibleErrors<ArgumentException,ArgumentNullException>(
-					new ArgumentNullException( $"{nameof(@object)}.{nameof(@object.Object)}" )
-				);
+				new ArgumentNullException( $"{nameof(@object)}.{nameof(@object.Object)}" )
+			);
 			
 		OneOf<Unit, PossibleErrors<ArgumentException, ArgumentNullException>> result = 
 			@object.Object?.Validate("@object.Object", identifierRequired );

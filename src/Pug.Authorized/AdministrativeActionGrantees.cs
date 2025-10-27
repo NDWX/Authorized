@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Pug.Authorized;
+﻿namespace Pug.Authorized;
 
 [Flags]
 public enum AdministrativeActionGrantees

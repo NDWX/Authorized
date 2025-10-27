@@ -2,24 +2,23 @@
 
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <Title>Pug.Authorized.Data.Common</Title>
         <Company>Pug Computing</Company>
         <RepositoryType>Git</RepositoryType>
         <RepositoryUrl>https://github.com/NDWX/Authorized.git</RepositoryUrl>
-        <AssemblyVersion>0.1</AssemblyVersion>
-        <FileVersion>0.1</FileVersion>
-        <PackageVersion>0.1</PackageVersion>
+        <AssemblyVersion>0.2</AssemblyVersion>
+        <FileVersion>0.2</FileVersion>
+        <PackageVersion>0.2</PackageVersion>
         <PackageLicenseExpression>Apache-2.0+</PackageLicenseExpression>
         <License>Apache2.0</License>
         <PackageTags>Pug.Authorized Authorization Framework Common DataAccess Library</PackageTags>
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-        <PackageReleaseNotes></PackageReleaseNotes>
+        <PackageReleaseNotes>Upgraded Pug.Authorized.Models to v0.2 and Pug.Application.Data.Common to v1.0.3.</PackageReleaseNotes>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Pug.Application.Data" Version="1.2.1" />
+        <PackageReference Include="Pug.Application.Data.Common" Version="1.0.3" />
         <PackageReference Include="SonarAnalyzer.CSharp" Version="9.19.0.84025">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

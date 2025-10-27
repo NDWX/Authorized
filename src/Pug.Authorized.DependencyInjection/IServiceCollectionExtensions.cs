@@ -8,26 +8,32 @@ namespace Pug.Authorized.DependencyInjection;
 // ReSharper disable once UnusedType.Global
 public static class IServiceCollectionExtensions
 {
-	public static IServiceCollection AddAuthorized( this IServiceCollection serviceCollection, Options options, IdentifierGenerator identifierGenerator )
+	public static IServiceCollection AddAuthorized(
+		this IServiceCollection serviceCollection, Options options, IdentifierGenerator identifierGenerator
+	)
 	{
-		serviceCollection.AddSingleton(
-				provider =>
-				{
-					ISessionUserIdentityAccessor? sessionUserIdentityAccessor =
+		serviceCollection.AddSingleton( provider =>
+			{
+				ISessionUserIdentityAccessor? sessionUserIdentityAccessor =
 					provider.GetService<ISessionUserIdentityAccessor>();
-					
-					IUserRoleProvider? userRoleProvider =
+
+				IUserRoleProvider? userRoleProvider =
 					provider.GetService<IUserRoleProvider>();
-					
-					IApplicationData<IAuthorizedDataStore>? applicationData = 
-						provider.GetService<IApplicationData<IAuthorizedDataStore>>();
 
-					return new Authorized( options, identifierGenerator, sessionUserIdentityAccessor,
-															userRoleProvider, applicationData );
+				IApplicationData<IAuthorizedDataStore>? applicationData =
+					provider.GetService<IApplicationData<IAuthorizedDataStore>>();
 
-				}
-			);
-		
+				return new Authorized(
+					options,
+					identifierGenerator,
+					sessionUserIdentityAccessor,
+					userRoleProvider,
+					applicationData
+				);
+
+			}
+		);
+
 		return serviceCollection;
 	}
 }

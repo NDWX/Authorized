@@ -5,7 +5,7 @@ public record DomainObject
 	public string Domain
 	{
 		get;
-#if NET6_0_OR_GREATER
+#if NET5_0_OR_GREATER
 		init;
 #else
 			set;
@@ -15,7 +15,7 @@ public record DomainObject
 	public Noun Object
 	{
 		get;
-#if NET6_0_OR_GREATER
+#if NET5_0_OR_GREATER
 		init;
 #else
 			set;
