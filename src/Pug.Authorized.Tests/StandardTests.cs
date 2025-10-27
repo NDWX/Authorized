@@ -1,252 +1,357 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Threading.Tasks;
 using Pug.Application.Security;
 using Xunit;
 using Xunit.Extensions.Ordering;
 
-namespace Pug.Authorized.Tests
+namespace Pug.Authorized.Tests;
+
+[SuppressMessage( "ReSharper", "HeapView.DelegateAllocation" )]
+public class StandardTests : IClassFixture<StandardTestContext>
 {
-	[TestCaseOrderer("Xunit.Extensions.Ordering.TestCaseOrderer", "Xunit.Extensions.Ordering")]
-	[SuppressMessage("ReSharper", "HeapView.DelegateAllocation")]
-	public class StandardTests : IClassFixture<StandardTestContext>
+	internal StandardTestContext TestContext { get; }
+
+	private readonly Noun userSubject = new Noun()
 	{
-		internal StandardTestContext TestContext { get; }
+		Type = SubjectTypes.User,
+		Identifier = DummyUserRoleProvider._user
+	};
 
-		public StandardTests(StandardTestContext testContext)
+	private readonly Noun user2Subject = new Noun()
+	{
+		Type = SubjectTypes.User,
+		Identifier = "USER2"
+	};
+
+	private readonly Noun group1Subject = new Noun()
+	{
+		Type = SubjectTypes.Group,
+		Identifier = "GROUP1"
+	};
+
+	private readonly Noun group2Subject = new Noun()
+	{
+		Type = SubjectTypes.Group,
+		Identifier = "GROUP2"
+	};
+
+	private readonly Noun _object1 = new Noun()
+	{
+		Type = "OBJECT",
+		Identifier = "OBJECT1"
+	};
+
+	private readonly Noun _object2 = new Noun()
+	{
+		Type = "OBJECT",
+		Identifier = "OBJECT2"
+	};
+
+	private readonly DomainObject _domainObject1;
+	private readonly DomainObject _domainObject2;
+
+	public StandardTests( StandardTestContext testContext )
+	{
+		TestContext = testContext;
+
+		_domainObject1 = new DomainObject
 		{
-			TestContext = testContext;
-		}
+			Domain = string.Empty,
+			Object = _object1
+		};
 
-		[Fact]
-		[Order(0)]
-		public void UserNotGrantedPermissionShouldNotBeAuthorized()
+		_domainObject2 = new DomainObject
 		{
-			Assert.Equal(
-					Permissions.Denied,
-					TestContext.Authorized.IsAuthorized(
-							new Noun
-							{
-								Type = SubjectTypes.User,
-								Identifier = "user"
-							},
-							AdministrativeActions.ManagePermissions,
-							new DomainObject
-							{
-								Domain = string.Empty,
-								Object = new Noun() {
-								Type = "OBJECT",
-								Identifier = "DEFAULT"
-								}
-							},
-							new Dictionary<string, IEnumerable<string>>(),
-							string.Empty
-						)
-				);
-		}
+			Domain = string.Empty,
+			Object = _object2
+		};
+	}
 
-		[Fact]
-		public void UserWithPermissionShouldBeAuthorized()
-		{
-			Assert.Equal(
-					Permissions.Allowed,
-					TestContext.Authorized.IsAuthorized(
-							new Noun
-							{
-								Type = SubjectTypes.User,
-								Identifier = "administrator"
-							},
-							AdministrativeActions.ManagePermissions,
-							new DomainObject
-							{
-								Domain = string.Empty,
-								Object = new Noun() {
-								Type = "OBJECT",
-								Identifier = "DEFAULT"
-								}
-							},
-							new Dictionary<string, IEnumerable<string>>(),
-							string.Empty
-						)
-				);
-		}
+	[Fact]
+	[Order( 0 )]
+	public async Task MemberOfAdministratorsGroupShouldBeAllowedToSetPermissions()
+	{
+		TestContext.SetCurrentUser( DummyUserRoleProvider._administrator );
 
-		[Fact]
-		public void UnknownUserShouldNotBeGrantedPermission()
-		{
-			Assert.Equal(
-					Permissions.Denied,
-					TestContext.Authorized.IsAuthorized(
-							new Noun
-							{
-								Type = SubjectTypes.User,
-								Identifier = "unknown"
-							},
-							AdministrativeActions.ManagePermissions,
-							new DomainObject
-							{
-								Domain = string.Empty,
-								Object = new Noun() {
-								Type = "OBJECT",
-								Identifier = "DEFAULT"
-								}
-							},
-							new Dictionary<string, IEnumerable<string>>(),
-							string.Empty
-						)
-				);
-		}
-
-		[Fact]
-		public void UserWithAuthorizedRoleShouldBeAuthorized()
-		{
-			Assert.Equal(
-					Permissions.Allowed,
-					TestContext.Authorized.IsAuthorized(
-							new Noun
-							{
-								Type = SubjectTypes.User,
-								Identifier = "unknown"
-							},
-							new[] {"USERS"},
-							AdministrativeActions.ViewPermissions,
-							new DomainObject
-							{
-								Domain = string.Empty,
-								Object = new Noun() {
-								Type = "OBJECT",
-								Identifier = "DEFAULT"
-								}
-							},
-							new Dictionary<string, IEnumerable<string>>(),
-							string.Empty
-						)
-				);
-		}
-
-		[Fact]
-		public void UserWithUnknownRoleShouldNotBeAuthorized()
-		{
-			Assert.Equal(
-					Permissions.Denied,
-					TestContext.Authorized.IsAuthorized(
-							new Noun
-							{
-								Type = SubjectTypes.User,
-								Identifier = "user"
-							},
-							new[] {"UNKNOWN"},
-							AdministrativeActions.ManagePermissions,
-							new DomainObject
-							{
-								Domain = string.Empty,
-								Object = new Noun() {
-								Type = "OBJECT",
-								Identifier = "DEFAULT"
-								}
-							},
-							new Dictionary<string, IEnumerable<string>>(),
-							string.Empty
-						)
-				);
-		}
-
-		[Fact]
-		public void DefaultAdminsitratorGroupUserShouldBeAllowedToManagePermissions()
-		{
-			TestContext.SetCurrentUser("administrator");
-
-			TestContext.Authorized.SetAccessControlEntries(
-					string.Empty,
-					new DomainObject
+		await TestContext.Authorized.SetAccessControlListsAsync(
+				StandardTestContext.Purpose,
+				_domainObject1,
+				new Dictionary<Noun, IEnumerable<AccessControlEntryDefinition>>()
+				{
+					[userSubject] = new[]
 					{
-						Domain = string.Empty,
-						Object = new Noun() {
-							Type = "OBJECT",
-							Identifier = "DEFAULT"
+						new AccessControlEntryDefinition()
+						{
+							Action = "READ",
+							Permissions = Permissions.Allowed,
+							Context = Array.Empty<AccessControlContextEntry>()
+						},
+						new AccessControlEntryDefinition()
+						{
+							Action = "MODIFY",
+							Permissions = Permissions.Denied,
+							Context = Array.Empty<AccessControlContextEntry>()
 						}
 					},
-					new[]
+					[group1Subject] = new[]
 					{
-						new AccessControlEntry
+						new AccessControlEntryDefinition()
 						{
-							Action = "VIEW",
-							Permissions = Permissions.Allowed,
-							Subject = new Noun
-							{
-								Type = SubjectTypes.User,
-								Identifier = "user"
-							}
+							Action = "DELETE",
+							Permissions = Permissions.Denied,
+							Context = Array.Empty<AccessControlContextEntry>()
 						}
 					}
-				);
-		}
+				}
+			);
 
-		[Fact]
-		public void MembersOfPermittedGroupShouldBeAllowedToManagePermissions()
-		{
-			TestContext.SetCurrentUser("sysadmin");
-
-			TestContext.Authorized.SetAccessControlEntries(
-					string.Empty,
-					new DomainObject
+		await TestContext.Authorized.SetAccessControlListsAsync(
+				StandardTestContext.Purpose,
+				_domainObject2,
+				new Dictionary<Noun, IEnumerable<AccessControlEntryDefinition>>()
+				{
+					[userSubject] = new[]
 					{
-						Domain = string.Empty,
-						Object = new Noun() {
-						Type = "OBJECT",
-						Identifier = "DEFAULT"
-						}
+						new AccessControlEntryDefinition()
+						{
+							Action = "READ",
+							Permissions = Permissions.Allowed,
+							Context = Array.Empty<AccessControlContextEntry>()
 						},
-					new[]
-					{
-						new AccessControlEntry
+						new AccessControlEntryDefinition()
 						{
-							Action = "VIEW",
+							Action = "MODIFY",
+							Permissions = Permissions.Denied,
+							Context = Array.Empty<AccessControlContextEntry>()
+						}
+					},
+					[group1Subject] = new[]
+					{
+						new AccessControlEntryDefinition()
+						{
+							Action = "MODIFY",
 							Permissions = Permissions.Allowed,
-							Subject = new Noun
-							{
-								Type = SubjectTypes.User,
-								Identifier = "user"
-							},
-							Context = new AccessControlContextEntry[] { }
+							Context = Array.Empty<AccessControlContextEntry>()
+						},
+						new AccessControlEntryDefinition()
+						{
+							Action = "DELETE",
+							Permissions = Permissions.Denied,
+							Context = Array.Empty<AccessControlContextEntry>()
+						}
+					},
+					[group2Subject] = new[]
+					{
+						new AccessControlEntryDefinition()
+						{
+							Action = "READ",
+							Permissions = Permissions.Denied,
+							Context = Array.Empty<AccessControlContextEntry>()
+						},
+						new AccessControlEntryDefinition()
+						{
+							Action = "DELETE",
+							Permissions = Permissions.Allowed,
+							Context = Array.Empty<AccessControlContextEntry>()
 						}
 					}
-				);
-		}
+				}
+			);
 
-		[Fact]
-		public void MembersOfRestrictedGroupShouldNotBeAllowedToManagePermissions()
-		{
-			TestContext.SetCurrentUser("poweruser");
-
-			Assert.Throws<NotAuthorized>(() =>
-					{
-						TestContext.Authorized.SetAccessControlEntries(
-								string.Empty,
-								new DomainObject
-								{
-									Domain = string.Empty,
-									Object = new Noun()
-									{
-										Type = "OBJECT",
-										Identifier = "DEFAULT"
-									}
-								},
-								new[]
-								{
-									new AccessControlEntry
-									{
-										Action = "VIEW",
-										Permissions = Permissions.Allowed,
-										Subject = new Noun
-										{
-											Type = SubjectTypes.User,
-											Identifier = "user"
-										}
-									}
-								}
-							);
-					}
-				);
-		}
+		Assert.True( true );
 	}
+
+	[Fact]
+	public async Task AccessControlListShouldBeRetrievedCorrectly()
+	{
+		IDictionary<Noun, IEnumerable<AccessControlEntry>> accessControlLists =
+			await TestContext.Authorized.GetAccessControlListsAsync( StandardTestContext.Purpose, _domainObject1 );
+
+		IEnumerable<AccessControlEntry> accessControlEntries = accessControlLists[userSubject];
+
+		Assert.Equal( 2, accessControlEntries.Count() );
+
+		IEnumerable<AccessControlEntry> aces = accessControlEntries.Where(x => x.Definition.Action == "READ");
+		Assert.True( aces.Any() );
+		Assert.Equal( Permissions.Allowed, aces.First().Definition.Permissions);
+
+		aces = accessControlEntries.Where(x => x.Definition.Action == "MODIFY");
+		Assert.True( aces.Any() );
+		Assert.Equal( Permissions.Denied, aces.First().Definition.Permissions);
+
+		accessControlEntries = accessControlLists[group1Subject];
+
+		Assert.Single( accessControlEntries);
+
+		aces = accessControlEntries.Where(x => x.Definition.Action == "DELETE");
+		Assert.True( aces.Any() );
+		Assert.Equal( Permissions.Denied, aces.First().Definition.Permissions);
+	}
+
+	[Fact]
+	public async Task AccessControlEntriesShouldBeRetrievedCorrectly()
+	{
+		IEnumerable<AccessControlEntry> accessControlEntries =
+			await TestContext.Authorized.GetAccessControlEntriesAsync( StandardTestContext.Purpose, _domainObject1, userSubject );
+
+		Assert.Equal( 2, accessControlEntries.Count() );
+
+		IEnumerable<AccessControlEntry> aces = accessControlEntries.Where(x => x.Definition.Action == "READ");
+		Assert.True( aces.Any() );
+		Assert.Equal( Permissions.Allowed, aces.First().Definition.Permissions);
+
+		aces = accessControlEntries.Where(x => x.Definition.Action == "MODIFY");
+		Assert.True( aces.Any() );
+		Assert.Equal( Permissions.Denied, aces.First().Definition.Permissions);
+	}
+
+	[Fact]
+	public async Task ExistingAccessControlEntryMustBeCorrectlyUpdated()
+	{
+		await TestContext.Authorized.SetAccessControlEntriesAsync(
+				StandardTestContext.Purpose, _domainObject2, group1Subject,
+				new[]
+				{
+					new AccessControlEntryDefinition()
+					{
+						Action = "MODIFY",
+						Permissions = Permissions.Denied,
+						Context = Array.Empty<AccessControlContextEntry>()
+					}
+				}
+			);
+
+		IEnumerable<AccessControlEntry> accessControlEntries =
+			await TestContext.Authorized.GetAccessControlEntriesAsync( StandardTestContext.Purpose, _domainObject2, group1Subject );
+
+		Assert.Single( accessControlEntries);
+
+		IEnumerable<AccessControlEntry> aces = accessControlEntries.Where(x => x.Definition.Action == "MODIFY");
+		Assert.True( aces.Any() );
+		Assert.Equal( Permissions.Denied, aces.First().Definition.Permissions);
+	}
+
+	[Fact]
+	public async Task MemberOfNonAdministratorsGroupShouldNotBeAllowedToSetPermissions()
+	{
+		TestContext.SetCurrentUser( DummyUserRoleProvider._user );
+
+		await Assert.ThrowsAsync<NotAuthorized>(
+				() =>
+					TestContext.Authorized.SetAccessControlEntriesAsync(
+							StandardTestContext.Purpose,
+							_domainObject1, userSubject, new[]
+							{
+								new AccessControlEntryDefinition()
+								{
+									Action = "DELETE",
+									Permissions = Permissions.Allowed,
+									Context = Array.Empty<AccessControlContextEntry>()
+								}
+							}
+						)
+			);
+	}
+
+	[Fact]
+	public async Task UserNotGrantedPermissionShouldNotBeAuthorizedAsync()
+	{
+		Permissions permissions = await TestContext.Authorized.IsAuthorizedAsync(
+										userSubject,
+										"MODIFY",
+										_domainObject1,
+										new Dictionary<string, IEnumerable<string>>(),
+										StandardTestContext.Purpose
+									);
+
+		Assert.Equal( Permissions.Denied, permissions );
+	}
+
+	[Fact]
+	public async Task UserWithExplicitPermissionShouldBeAuthorizedAsync()
+	{
+		Assert.Equal(
+				Permissions.Allowed,
+				await TestContext.Authorized.IsAuthorizedAsync(
+						userSubject,
+						"READ",
+						_domainObject1,
+						new Dictionary<string, IEnumerable<string>>(),
+						StandardTestContext.Purpose
+					)
+			);
+	}
+
+	[Fact]
+	public async Task UserWithInheritedPermissionShouldBeAuthorizedAsync()
+	{
+		Assert.Equal(
+				Permissions.Allowed,
+				await TestContext.Authorized.IsAuthorizedAsync(
+						user2Subject,
+						"DELETE",
+						_domainObject2,
+						new Dictionary<string, IEnumerable<string>>(),
+						StandardTestContext.Purpose
+					)
+			);
+	}
+
+	[Fact]
+	public async Task UnknownUserShouldNotBeGrantedPermissionAsync()
+	{
+		Assert.Equal(
+				Permissions.Denied,
+				await TestContext.Authorized.IsAuthorizedAsync(
+						new Noun
+						{
+							Type = SubjectTypes.User,
+							Identifier = "unknown"
+						},
+						AdministrativeActions.ManagePermissions,
+						new DomainObject
+						{
+							Domain = string.Empty,
+							Object = new Noun()
+							{
+								Type = "OBJECT",
+								Identifier = "DEFAULT"
+							}
+						},
+						new Dictionary<string, IEnumerable<string>>(),
+						StandardTestContext.Purpose
+					)
+			);
+	}
+
+	[Fact]
+	public async Task UserWithUnknownRoleShouldNotBeAuthorizedAsync()
+	{
+		Assert.Equal(
+				Permissions.Denied,
+				await TestContext.Authorized.IsAuthorizedAsync(
+						new Noun
+						{
+							Type = SubjectTypes.User,
+							Identifier = "user"
+						},
+						AdministrativeActions.ManagePermissions,
+						new DomainObject
+						{
+							Domain = string.Empty,
+							Object = new Noun()
+							{
+								Type = "OBJECT",
+								Identifier = "DEFAULT"
+							}
+						},
+						new Dictionary<string, IEnumerable<string>>(),
+						StandardTestContext.Purpose
+					)
+			);
+	}
+
 }

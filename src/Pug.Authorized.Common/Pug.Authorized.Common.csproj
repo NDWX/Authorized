@@ -1,30 +1,38 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>netstandard2.0</TargetFramework>
-		<PackageVersion>0.6</PackageVersion>
+		<TargetFrameworks>netstandard2.0;netcoreapp3.0;net6.0</TargetFrameworks>
+		<LangVersion>10</LangVersion>
+		<RootNamespace>Pug.Authorized</RootNamespace>
 		<Title>Pug.Authorized.Common</Title>
+		<Company>Pug Computing</Company>
+		<RepositoryType>Git</RepositoryType>
+		<RepositoryUrl>https://github.com/NDWX/Authorized.git</RepositoryUrl>
+        <AssemblyVersion>0.7</AssemblyVersion>
+        <FileVersion>0.7</FileVersion>
+        <PackageVersion>0.7</PackageVersion>
 		<PackageLicenseExpression>Apache-2.0+</PackageLicenseExpression>
 		<License>Apache2.0</License>
-		<RepositoryUrl>https://github.com/NDWX/Authorized.git</RepositoryUrl>
-		<RepositoryType>Git</RepositoryType>
 		<PackageTags>Pug.Authorized Authorization Framework Common Types</PackageTags>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-		<Company>Pug Computing</Company>
-		<AssemblyVersion>0.6</AssemblyVersion>
-		<FileVersion>0.6</FileVersion>
-		<RootNamespace>Pug.Authorized</RootNamespace>
-		<PackageReleaseNotes>Upgraded Pug.Effable to v2.0.1</PackageReleaseNotes>
+		<PackageReleaseNotes>Upgraded Pug.Authorized.Models to v0.2, and Pug.Application.Security to v2.1.2; Added support for .NET Core 3.0.</PackageReleaseNotes>
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="Pug.Application.Data" Version="1.1.12" />
-	  <PackageReference Include="Pug.Application.Security" Version="2.0.2" />
-	  <PackageReference Include="Pug.Effable" Version="2.0.1" />
-	  <PackageReference Include="SonarAnalyzer.CSharp" Version="8.32.0.39516">
+	  <PackageReference Include="Pug.Application.Security" Version="2.1.2" />
+	  <PackageReference Include="Pug.Core" Version="2.0.1" />
+	  <PackageReference Include="SonarAnalyzer.CSharp" Version="9.19.0.84025">
 	    <PrivateAssets>all</PrivateAssets>
 	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 	  </PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Data\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Pug.Authorized.Models\Pug.Authorized.Models.csproj" />
 	</ItemGroup>
 
 </Project>

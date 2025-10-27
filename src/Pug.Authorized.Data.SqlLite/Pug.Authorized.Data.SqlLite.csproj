@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Title>Pug.Authorized.Data.SqlLite</Title>
+        <Company>Pug Computing</Company>
+        <RepositoryType>Git</RepositoryType>
+        <RepositoryUrl>https://github.com/NDWX/Authorized.git</RepositoryUrl>
+        <AssemblyVersion>0.2</AssemblyVersion>
+        <FileVersion>0.2</FileVersion>
+        <PackageVersion>0.2</PackageVersion>
+        <PackageLicenseExpression>Apache-2.0+</PackageLicenseExpression>
+        <License>Apache2.0</License>
+        <PackageTags>Pug.Authorized Authorization Framework SqlLite SQLite DataAccess</PackageTags>
+        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+        <PackageReleaseNotes>Upgraded Pug.Authorized.Models to v0.2, Pug.Authorized.Data.Common to v0.2, and Pug.ApplicationData to v1.3.0.</PackageReleaseNotes>
+        <RootNamespace>Pug.Authorize.Data.SqlLite</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Pug.Authorized.Data.Common\Pug.Authorized.Data.Common.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Pug.Application.Data" Version="1.3.0" />
+      <PackageReference Include="Dapper.StrongName" Version="2.1.28" />
+      <PackageReference Include="System.Data.SQLite.Core" Version="1.0.118" />
+    </ItemGroup>
+
+</Project>

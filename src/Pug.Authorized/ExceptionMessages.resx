@@ -42,4 +42,7 @@
     <data name="ACE_SUBJECT_MUST_BE_SPECIFIED" xml:space="preserve">
         <value>Access control entry subject must be specified.</value>
     </data>
+    <data name="ACE_ACTION_MUST_BE_SPECIFIED" xml:space="preserve">
+        <value>Access control entry action must be specified</value>
+    </data>
 </root>

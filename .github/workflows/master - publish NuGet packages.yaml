@@ -7,8 +7,12 @@ on:
 
 env:
   BuildConfiguration: release
+  ModelsProject: src/Pug.Authorized.Models/Pug.Authorized.Models.csproj
   CommonProject: src/Pug.Authorized.Common/Pug.Authorized.Common.csproj
   MainProject: src/Pug.Authorized/Pug.Authorized.csproj
+  DataCommonProject: src/Pug.Authorized.Data.Common/Pug.Authorized.Data.Common.csproj
+  DependencyInjectionProject: src/Pug.Authorized.DependencyInjection/Pug.Authorized.DependencyInjection.csproj
+  RestProject: src/Pug.Authorized.Rest/Pug.Authorized.Rest.csproj
   PackagesBaseFolder: packages
 
 jobs:
@@ -16,12 +20,20 @@ jobs:
     name: Build and publish NuGet packages
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      
-      # Authenticates packages to push to GPR
-      - uses: actions/setup-dotnet@v1
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
         with:
-          dotnet-version: '3.1.x' # SDK Version to use.
+          java-version: 17
+          distribution: 'zulu' # Alternative distribution options are available.
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+
+
+      # Authenticates packages to push to GPR
+      - uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8' # SDK Version to use.
           source-url: https://nuget.pkg.github.com/Authorized/index.json
         env:
           NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
@@ -29,7 +41,7 @@ jobs:
       - name: SonarCloud Scan
         run: |
           dotnet tool install --global dotnet-sonarscanner
-          dotnet sonarscanner begin /o:ndwx /k:NDWX_Authorized /d:sonar.login=${{secrets.SONAR_TOKEN}}  /d:sonar.host.url=https://sonarcloud.io  /d:sonar.cs.opencover.reportsPaths=**/coverage.opencover.xml  
+          dotnet sonarscanner begin /o:ndwx /k:NDWX_Authorized /d:sonar.login=${{secrets.SONAR_TOKEN}}  /d:sonar.host.url=https://sonarcloud.io  /d:sonar.cs.opencover.reportsPaths=**/coverage.opencover.xml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -52,7 +64,7 @@ jobs:
 
       - name: Create packages base folder
         run: mkdir packages
-        
+
       - name: Pack Common project
         run: dotnet pack --no-build --output ${{env.PackagesBaseFolder}} --nologo --configuration ${{env.BuildConfiguration}} ${{env.CommonProject}}
 
@@ -65,6 +77,18 @@ jobs:
       - name: Clear packages folder
         run: rm packages/*.nupkg
 
+      - name: Pack DataCommonProject project
+        run: dotnet pack --no-build --output ${{env.PackagesBaseFolder}} --nologo --configuration ${{env.BuildConfiguration}} ${{env.DataCommonProject}}
+
+      - name: Publish DataCommon NuGet package
+        run: dotnet nuget push ${{env.PackagesBaseFolder}}/*.nupkg --skip-duplicate
+
+      - name: Publish DataCommon NuGet package to NuGet.org
+        run: dotnet nuget push ${{env.PackagesBaseFolder}}/*.nupkg --api-key ${{secrets.NUGET_APIKEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+      - name: Clear packages folder
+        run: rm packages/*.nupkg
+
       - name: Pack Main project
         run: dotnet pack --no-build --output ${{env.PackagesBaseFolder}} --nologo --configuration ${{env.BuildConfiguration}} ${{env.MainProject}}
 
@@ -72,6 +96,30 @@ jobs:
         run: dotnet nuget push ${{env.PackagesBaseFolder}}/*.nupkg --skip-duplicate
 
       - name: Publish Main NuGet package to NuGet.org
+        run: dotnet nuget push ${{env.PackagesBaseFolder}}/*.nupkg --api-key ${{secrets.NUGET_APIKEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+      - name: Clear packages folder
+        run: rm packages/*.nupkg
+
+      - name: Pack DependencyInjection project
+        run: dotnet pack --no-build --output ${{env.PackagesBaseFolder}} --nologo --configuration ${{env.BuildConfiguration}} ${{env.DependencyInjectionProject}}
+
+      - name: Publish DependencyInjection NuGet package
+        run: dotnet nuget push ${{env.PackagesBaseFolder}}/*.nupkg --skip-duplicate
+
+      - name: Publish DependencyInjection NuGet package to NuGet.org
+        run: dotnet nuget push ${{env.PackagesBaseFolder}}/*.nupkg --api-key ${{secrets.NUGET_APIKEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+      - name: Clear packages folder
+        run: rm packages/*.nupkg
+
+      - name: Pack Rest project
+        run: dotnet pack --no-build --output ${{env.PackagesBaseFolder}} --nologo --configuration ${{env.BuildConfiguration}} ${{env.RestProject}}
+
+      - name: Publish Rest NuGet package
+        run: dotnet nuget push ${{env.PackagesBaseFolder}}/*.nupkg --skip-duplicate
+
+      - name: Publish Rest NuGet package to NuGet.org
         run: dotnet nuget push ${{env.PackagesBaseFolder}}/*.nupkg --api-key ${{secrets.NUGET_APIKEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
 
       - name: Clear packages folder

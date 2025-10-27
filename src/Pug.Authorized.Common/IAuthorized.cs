@@ -1,30 +1,21 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Pug.Authorized
+namespace Pug.Authorized;
+
+public interface IAuthorized
 {
-	public interface IAuthorized
-	{
-		Permissions IsAuthorized(Noun subject, string action, DomainObject @object, IDictionary<string, IEnumerable<string>> context,
-								string purpose);
+	Task<Permissions> IsAuthorizedAsync(Noun subject, string action, DomainObject @object, IDictionary<string, IEnumerable<string>> context,
+										string purpose);
 
-		Permissions IsAuthorized(Noun subject, IEnumerable<string> effectiveRoles, string action, DomainObject @object,
-								IDictionary<string, IEnumerable<string>> context, string purpose);
-								
-		Task<Permissions> IsAuthorizedAsync(Noun subject, string action, DomainObject @object, IDictionary<string, IEnumerable<string>> context,
-											string purpose);
+	Task<IEnumerable<AccessControlEntry>> GetAccessControlEntriesAsync(
+		string purpose, DomainObject @object, Noun subject);
 
-		Task<Permissions> IsAuthorizedAsync(Noun subject, IEnumerable<string> effectiveRoles, string action, DomainObject @object,
-								IDictionary<string, IEnumerable<string>> context, string purpose);
+	Task<IDictionary<Noun, IEnumerable<AccessControlEntry>>> GetAccessControlListsAsync(
+		string purpose, DomainObject @object);
 
-		IEnumerable<AccessControlEntry> GetAccessControlEntries(Noun subject, string purpose, DomainObject @object);
+	Task SetAccessControlEntriesAsync(string purpose, DomainObject @object, Noun subject,
+									IEnumerable<AccessControlEntryDefinition> entries);
 
-		Task<IEnumerable<AccessControlEntry>> GetAccessControlEntriesAsync(Noun subject, string purpose, DomainObject @object);
-
-		void SetAccessControlEntries(string purpose, DomainObject @object,
-									IEnumerable<AccessControlEntry> entries, Noun subject = null);
-
-		Task SetAccessControlEntriesAsync(string purpose, DomainObject @object,
-									IEnumerable<AccessControlEntry> entries, Noun subject = null);
-	}
+	Task SetAccessControlListsAsync(string purpose, DomainObject @object, IDictionary<Noun, IEnumerable<AccessControlEntryDefinition>> accessControlLists);
 }
