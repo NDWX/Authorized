@@ -66,7 +66,7 @@ jobs:
         run: mkdir packages
 
       - name: Pack Common project
-        run: dotnet pack --no-build --output ${{env.PackagesBaseFolder}} --nologo --configuration ${{env.BuildConfiguration}} ${{env.CommonProject}}
+        run: dotnet pack --output ${{env.PackagesBaseFolder}} --nologo --configuration ${{env.BuildConfiguration}} ${{env.CommonProject}}
 
       - name: Publish Common NuGet package
         run: dotnet nuget push ${{env.PackagesBaseFolder}}/*.nupkg --skip-duplicate
@@ -78,7 +78,7 @@ jobs:
         run: rm packages/*.nupkg
 
       - name: Pack DataCommonProject project
-        run: dotnet pack --no-build --output ${{env.PackagesBaseFolder}} --nologo --configuration ${{env.BuildConfiguration}} ${{env.DataCommonProject}}
+        run: dotnet pack --output ${{env.PackagesBaseFolder}} --nologo --configuration ${{env.BuildConfiguration}} ${{env.DataCommonProject}}
 
       - name: Publish DataCommon NuGet package
         run: dotnet nuget push ${{env.PackagesBaseFolder}}/*.nupkg --skip-duplicate
@@ -90,7 +90,7 @@ jobs:
         run: rm packages/*.nupkg
 
       - name: Pack Main project
-        run: dotnet pack --no-build --output ${{env.PackagesBaseFolder}} --nologo --configuration ${{env.BuildConfiguration}} ${{env.MainProject}}
+        run: dotnet pack --output ${{env.PackagesBaseFolder}} --nologo --configuration ${{env.BuildConfiguration}} ${{env.MainProject}}
 
       - name: Publish Main NuGet package
         run: dotnet nuget push ${{env.PackagesBaseFolder}}/*.nupkg --skip-duplicate
@@ -102,7 +102,7 @@ jobs:
         run: rm packages/*.nupkg
 
       - name: Pack DependencyInjection project
-        run: dotnet pack --no-build --output ${{env.PackagesBaseFolder}} --nologo --configuration ${{env.BuildConfiguration}} ${{env.DependencyInjectionProject}}
+        run: dotnet pack --output ${{env.PackagesBaseFolder}} --nologo --configuration ${{env.BuildConfiguration}} ${{env.DependencyInjectionProject}}
 
       - name: Publish DependencyInjection NuGet package
         run: dotnet nuget push ${{env.PackagesBaseFolder}}/*.nupkg --skip-duplicate
@@ -114,7 +114,7 @@ jobs:
         run: rm packages/*.nupkg
 
       - name: Pack Rest project
-        run: dotnet pack --no-build --output ${{env.PackagesBaseFolder}} --nologo --configuration ${{env.BuildConfiguration}} ${{env.RestProject}}
+        run: dotnet pack --output ${{env.PackagesBaseFolder}} --nologo --configuration ${{env.BuildConfiguration}} ${{env.RestProject}}
 
       - name: Publish Rest NuGet package
         run: dotnet nuget push ${{env.PackagesBaseFolder}}/*.nupkg --skip-duplicate
