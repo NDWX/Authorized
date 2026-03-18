@@ -9,10 +9,10 @@ public record AccessControlEntry : Identifiable<string>
 	public string Identifier
 	{
 		get;
-#if NET6_0_OR_GREATER
+#if NET5_0_OR_GREATER
 		init;
 #else
-		set;
+        set;
 #endif
 	}
 
@@ -20,10 +20,10 @@ public record AccessControlEntry : Identifiable<string>
 	public AccessControlEntryDefinition Definition
 	{
 		get;
-#if net5_0_or_greater
+#if NET5_0_OR_GREATER
 		init;
 #else
-		set;
+        set;
 #endif
 	}
 
