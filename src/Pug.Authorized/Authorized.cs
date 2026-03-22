@@ -234,17 +234,20 @@ public class Authorized : IAuthorized
 		if( permissions == Permissions.Denied )
 			return Permissions.Denied;
 
+		if (subject.Type == SubjectTypes.Group)
+			return permissions;
+
 		Permissions effectivePermissions = permissions;
 
-		// Evaluate effective roles authorization
-		effectivePermissions |=
-			await GetEffectivePermissionAsync( effectiveRoles, action, @object, context, purpose, dataSession );
+        // Evaluate effective roles authorization
+        effectivePermissions |=
+            await GetEffectivePermissionAsync(effectiveRoles, action, @object, context, purpose, dataSession);
 
-		if( effectivePermissions == Permissions.Denied || subject.Type == SubjectTypes.Group ||
-			@object.Domain == _options.ManagementDomain )
-			return effectivePermissions;
+        if (effectivePermissions == Permissions.Denied || subject.Type == SubjectTypes.Group || 
+			@object.Domain == _options.ManagementDomain)
+            return effectivePermissions;
 
-		IEnumerable<string> managementRoles =
+        IEnumerable<string> managementRoles =
 			_userRoleProvider.GetUserRoles( subject.Identifier, _options.ManagementDomain );
 
 		if( !managementRoles.Any() )
