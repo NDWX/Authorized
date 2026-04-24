@@ -234,9 +234,6 @@ public class Authorized : IAuthorized
 		if( permissions == Permissions.Denied )
 			return Permissions.Denied;
 
-		if (subject.Type == SubjectTypes.Group)
-			return permissions;
-
 		Permissions effectivePermissions = permissions;
 
         // Evaluate effective roles authorization
@@ -326,10 +323,7 @@ public class Authorized : IAuthorized
 
 		action.Validate();
 
-		IEnumerable<string> effectiveRoles = null;
-
-		if( subject.Type != SubjectTypes.Group )
-			effectiveRoles = _userRoleProvider.GetUserRoles( subject.Identifier, @object.Domain );
+		IEnumerable<string> effectiveRoles = _userRoleProvider.GetUserRoles(subject.Identifier, @object.Domain);
 
 		return _dataStoreProvider.ExecuteAsync(
 			async ( dataSession, ctx ) =>
