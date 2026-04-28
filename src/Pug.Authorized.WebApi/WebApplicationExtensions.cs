@@ -27,37 +27,37 @@ public static class WebApplicationExtensions
 
 		if( webApiHandler is null )
 			return webApplication;
-		
+
 		webApplication.MapGet(
-							$"{basePath}/domains/{{domain}}/{{purpose}}/objects/{{objectType}}/{{objectIdentifier}}/effectivePermission",
-							webApiHandler.GetEffectivePermissionAsync
-						)
+						$"{basePath}/objects/{{domain}}/{{objectType}}/{{objectIdentifier}}/effectivePermission",
+						webApiHandler.GetEffectivePermissionAsync
+					)
 					.RequireAuthorization()
 					.Document( nameof(webApiHandler.GetEffectivePermissionAsync) );
 
 		webApplication.MapGet(
-							$"{basePath}/domains/{{domain}}/{{purpose}}/objects/{{objectType}}/{{objectIdentifier}}/accessControlLists",
+							$"{basePath}/objects/{{domain}}/{{objectType}}/{{objectIdentifier}}/accessControlLists",
 							webApiHandler.GetAccessControlListsAsync
 						)
 					.RequireAuthorization()
 					.Document( nameof(webApiHandler.GetAccessControlListsAsync) );
 
 		webApplication.MapGet(
-							$"{basePath}/domains/{{domain}}/{{purpose}}/objects/{{objectType}}/{{objectIdentifier}}/accessControlLists/subjects/{{subjectType}}/{{subjectIdentifier}}",
+							$"{basePath}/objects/{{domain}}/{{objectType}}/{{objectIdentifier}}/accessControlLists/subjects/{{subjectType}}/{{subjectIdentifier}}",
 							webApiHandler.GetAccessControlEntriesAsync
 						)
 					.RequireAuthorization()
 					.Document( nameof(webApiHandler.GetAccessControlEntriesAsync) );
 
 		webApplication.MapPost(
-							$"{basePath}/domains/{{domain}}/{{purpose}}/objects/{{objectType}}/{{objectIdentifier}}/accessControlLists/subjects/{{subjectType}}/{{subjectIdentifier}}",
+							$"{basePath}/objects/{{domain}}/{{objectType}}/{{objectIdentifier}}/accessControlLists/subjects/{{subjectType}}/{{subjectIdentifier}}",
 							webApiHandler.SetSubjectAccessControlEntries
 						)
 					.RequireAuthorization()
 					.Document( nameof(webApiHandler.SetSubjectAccessControlEntries) );
 		
 		webApplication.MapPost(
-							$"{basePath}/domains/{{domain}}/{{purpose}}/objects/{{objectType}}/{{objectIdentifier}}/accessControlLists/",
+							$"{basePath}/objects/{{domain}}/{{objectType}}/{{objectIdentifier}}/accessControlLists/",
 							webApiHandler.SetAccessControlListsAsync
 						)
 					.RequireAuthorization()

@@ -39,13 +39,13 @@ internal class DummyUserRoleProvider : IUserRoleProvider
 		throw new System.NotImplementedException();
 	}
 
-	public IEnumerable<string> GetUserRoles(string user, string domain)
+	public IEnumerable<string> GetUserRoles(string user)
 	{
 		return _roles.ContainsKey(user) ? _roles[user] : new string[0];
 	}
 
-	public async Task<IEnumerable<string>> GetUserRolesAsync( string user, string domain )
+	public async Task<IEnumerable<string>> GetUserRolesAsync( string user )
 	{
-		throw new System.NotImplementedException();
+		return _roles.ContainsKey(user) ? _roles[user] : new string[0];
 	}
 }
