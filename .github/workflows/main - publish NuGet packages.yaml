@@ -1,4 +1,4 @@
-name: master - build and NuGet publish
+name: main - build and NuGet publish
 
 on:
   push:
@@ -25,13 +25,13 @@ jobs:
         with:
           java-version: 17
           distribution: 'zulu' # Alternative distribution options are available.
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
 
 
       # Authenticates packages to push to GPR
-      - uses: actions/setup-dotnet@v3
+      - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8' # SDK Version to use.
           source-url: https://nuget.pkg.github.com/Authorized/index.json
@@ -41,7 +41,7 @@ jobs:
       - name: SonarCloud Scan
         run: |
           dotnet tool install --global dotnet-sonarscanner
-          dotnet sonarscanner begin /o:ndwx /k:NDWX_Authorized /d:sonar.login=${{secrets.SONAR_TOKEN}}  /d:sonar.host.url=https://sonarcloud.io  /d:sonar.cs.opencover.reportsPaths=**/coverage.opencover.xml
+          dotnet sonarscanner begin /o:ndwx /k:NDWX_Authorized /d:sonar.token=${{secrets.SONAR_TOKEN}}  /d:sonar.host.url=https://sonarcloud.io  /d:sonar.cs.opencover.reportsPaths=**/coverage.opencover.xml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -58,7 +58,7 @@ jobs:
           dotnet test --nologo src/Pug.Authorized.Tests/Pug.Authorized.Tests.csproj --no-build --no-restore --verbosity normal -p:CollectCoverage=true -p:CoverletOutputFormat=opencover
 
       - name: End Sonar scan
-        run: dotnet sonarscanner end /d:sonar.login=${{ secrets.SONAR_TOKEN }}
+        run: dotnet sonarscanner end /d:sonar.token=${{ secrets.SONAR_TOKEN }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
 
