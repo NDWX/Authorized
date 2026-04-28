@@ -15,13 +15,13 @@ public class WebApiHandler
 	[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 	[ProducesResponseType(StatusCodes.Status403Forbidden)]
 	[ProducesResponseType(typeof(Permissions), StatusCodes.Status200OK)]
-	public async Task<IResult> GetEffectivePermissionAsync( [Required, FromRoute] string domain,
-														[Required, FromRoute] string purpose,
-														[Required, FromRoute] string objectType,
-														[Required, FromRoute] string objectIdentifier,
-														[Required, FromQuery] string subjectType,
-														[Required, FromQuery] string subjectIdentifier,
-														[Required, FromQuery] string action )
+	public async Task<IResult> GetEffectivePermissionAsync( [Required, FromHeader] string purpose,
+															[Required, FromRoute] string domain,
+															[Required, FromRoute] string objectType,
+															[Required, FromRoute] string objectIdentifier,
+															[Required, FromQuery] string subjectType,
+															[Required, FromQuery] string subjectIdentifier,
+															[Required, FromQuery] string action )
 	{
 		Permissions permission = await _authorized.IsAuthorizedAsync(
 									new Noun()
@@ -52,8 +52,8 @@ public class WebApiHandler
 	[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 	[ProducesResponseType(StatusCodes.Status403Forbidden)]
 	[ProducesResponseType( typeof(IDictionary<Noun, IEnumerable<AccessControlEntry>>), StatusCodes.Status200OK)]
-	public async Task<IResult> GetAccessControlListsAsync( [Required, FromRoute] string domain,
-															[Required, FromRoute] string purpose,
+	public async Task<IResult> GetAccessControlListsAsync( [Required, FromHeader] string purpose,
+															[Required, FromRoute] string domain,
 															[Required, FromRoute] string objectType,
 															[Required, FromRoute] string objectIdentifier)
 	{
@@ -76,12 +76,12 @@ public class WebApiHandler
 	[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 	[ProducesResponseType(StatusCodes.Status403Forbidden)]
 	[ProducesResponseType( typeof(IEnumerable<AccessControlEntry>), StatusCodes.Status200OK)]
-	public async Task<IResult> GetAccessControlEntriesAsync( [Required, FromRoute] string domain,
-														[Required, FromRoute] string purpose,
-														[Required, FromRoute] string objectType,
-														[Required, FromRoute] string objectIdentifier,
-														[Required, FromRoute] string subjectType,
-														[Required, FromRoute] string subjectIdentifier)
+	public async Task<IResult> GetAccessControlEntriesAsync( [Required, FromHeader] string purpose,
+															[Required, FromRoute] string domain,
+															[Required, FromRoute] string objectType,
+															[Required, FromRoute] string objectIdentifier,
+															[Required, FromRoute] string subjectType,
+															[Required, FromRoute] string subjectIdentifier)
 	{
 		IEnumerable<AccessControlEntry> accessControlEntries =
 			await _authorized.GetAccessControlEntriesAsync(
@@ -103,13 +103,13 @@ public class WebApiHandler
 	[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 	[ProducesResponseType(StatusCodes.Status403Forbidden)]
 	[ProducesResponseType(StatusCodes.Status200OK)]
-	public async Task<IResult> SetSubjectAccessControlEntries( [Required, FromRoute] string domain,
-														[Required, FromRoute] string purpose,
-														[Required, FromRoute] string objectType,
-														[Required, FromRoute] string objectIdentifier,
-														[Required, FromQuery] string subjectType,
-														[Required, FromQuery] string subjectIdentifier,
-														[Required, FromBody] IEnumerable<AccessControlEntryDefinition> accessControlEntries )
+	public async Task<IResult> SetSubjectAccessControlEntries( [Required, FromHeader] string purpose,
+																[Required, FromRoute] string domain,
+																[Required, FromRoute] string objectType,
+																[Required, FromRoute] string objectIdentifier,
+																[Required, FromQuery] string subjectType,
+																[Required, FromQuery] string subjectIdentifier,
+																[Required, FromBody] IEnumerable<AccessControlEntryDefinition> accessControlEntries )
 	{
 		await _authorized.SetAccessControlEntriesAsync(
 			purpose,
@@ -131,11 +131,11 @@ public class WebApiHandler
 	[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 	[ProducesResponseType(StatusCodes.Status403Forbidden)]
 	[ProducesResponseType(StatusCodes.Status200OK)]
-	public async Task<IResult> SetAccessControlListsAsync( [Required, FromRoute] string domain,
-																[Required, FromRoute] string purpose,
-																[Required, FromRoute] string objectType,
-																[Required, FromRoute] string objectIdentifier,
-																[Required, FromBody] IDictionary<Noun, IEnumerable<AccessControlEntryDefinition>> accessControlLists )
+	public async Task<IResult> SetAccessControlListsAsync( [Required, FromHeader] string purpose,
+															[Required, FromRoute] string domain,
+															[Required, FromRoute] string objectType,
+															[Required, FromRoute] string objectIdentifier,
+															[Required, FromBody] IDictionary<Noun, IEnumerable<AccessControlEntryDefinition>> accessControlLists )
 	{
 		await _authorized.SetAccessControlListsAsync(
 			purpose,
