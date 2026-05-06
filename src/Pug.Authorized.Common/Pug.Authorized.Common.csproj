@@ -8,14 +8,14 @@
 		<Company>Pug Computing</Company>
 		<RepositoryType>Git</RepositoryType>
 		<RepositoryUrl>https://github.com/NDWX/Authorized.git</RepositoryUrl>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
-        <FileVersion>1.0.0.0</FileVersion>
-        <PackageVersion>1.0.0</PackageVersion>
+        <AssemblyVersion>1.1.0.0</AssemblyVersion>
+        <FileVersion>1.1.0.0</FileVersion>
+        <PackageVersion>1.1.0</PackageVersion>
 		<PackageLicenseExpression>Apache-2.0+</PackageLicenseExpression>
 		<License>Apache2.0</License>
 		<PackageTags>Pug.Authorized Authorization Framework Common Types</PackageTags>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-		<PackageReleaseNotes>Removal of unnecessary dependencies, and replace Pug.Application.Security v2.1.2 with Pug.Applicatoni.Security.Abstractions v3.0.1.</PackageReleaseNotes>
+		<PackageReleaseNotes>Upgraded Pug.Applicatino.Security.Abstractions to v3.1.0</PackageReleaseNotes>
 	</PropertyGroup>
 
 	<ItemGroup>
