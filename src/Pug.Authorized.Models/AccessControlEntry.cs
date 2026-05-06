@@ -1,10 +1,12 @@
-﻿using System.Runtime.Serialization;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Runtime.Serialization;
 using Pug.Effable;
 
 namespace Pug.Authorized;
 
 public record AccessControlEntry : Identifiable<string>
 {
+	[Required]
 	[DataMember(IsRequired = true)]
 	public string Identifier
 	{
@@ -16,6 +18,7 @@ public record AccessControlEntry : Identifiable<string>
 #endif
 	}
 
+	[Required]
 	[DataMember(IsRequired = true)]
 	public AccessControlEntryDefinition Definition
 	{
@@ -27,6 +30,7 @@ public record AccessControlEntry : Identifiable<string>
 #endif
 	}
 
+	[Required]
 	[DataMember(IsRequired = true)]
 	public ActionContext<Reference> Registration
 	{
@@ -38,6 +42,7 @@ public record AccessControlEntry : Identifiable<string>
 #endif
 	}
 
+	[Required]
 	[DataMember]
 	public ActionContext<Reference> LastUpdate
 	{

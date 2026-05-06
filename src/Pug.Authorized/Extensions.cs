@@ -1,9 +1,17 @@
-﻿using Pug.Lang;
+﻿using Pug.Application.Security;
+using Pug.Lang;
 
 namespace Pug.Authorized;
 
 public static class ModelExtensions
 {
+	
+	public static NounQualifier ToNounQualifier( this DomainObject @object )
+	{
+		return new NounQualifier() { Domain = @object.Domain, Type = @object.Object.Type, Identifier = @object.Object.Identifier };
+	}
+
+	
 	public static OneOf<Unit, PossibleErrors<ArgumentException, ArgumentNullException>> Validate(
 		this Noun subject, string parameterName, bool identifierRequired = true )
 	{
@@ -24,21 +32,42 @@ public static class ModelExtensions
 
 		return Unit.Value;
 	}
-
-	public static OneOf<Unit, PossibleErrors<ArgumentException, ArgumentNullException>> Validate(this  DomainObject @object, bool objectRequired , bool identifierRequired = true)
+	
+	public static OneOf<Unit, PossibleErrors<ArgumentException, ArgumentNullException>> Validate(
+		this NounQualifier subject, string parameterName, bool identifierRequired = true )
 	{
-		if( @object == null )
+		if( subject == null )
+			return new PossibleErrors<ArgumentException, ArgumentNullException>(
+				new ArgumentNullException( parameterName )
+			);
+
+		if( string.IsNullOrWhiteSpace( subject.Type ) )
+			return new PossibleErrors<ArgumentException, ArgumentNullException>(
+				new ArgumentException( ExceptionMessages.SUBJECT_TYPE_MUST_BE_SPECIFIED, parameterName )
+			);
+
+		if( identifierRequired && string.IsNullOrWhiteSpace( subject.Identifier ) )
+			return new PossibleErrors<ArgumentException, ArgumentNullException>(
+				new ArgumentException( ExceptionMessages.SUBJECT_IDENTIFIER_MUST_BE_SPECIFIED, parameterName )
+			);
+
+		return Unit.Value;
+	}
+
+	public static OneOf<Unit, PossibleErrors<ArgumentException, ArgumentNullException>> Validate(this  NounQualifier @object, bool objectRequired , bool identifierRequired = true)
+	{
+		if( @object is null )
 			return new PossibleErrors<ArgumentException, ArgumentNullException>(
 				new ArgumentNullException( nameof(@object) )
 			);
 			
-		if( objectRequired && @object.Object == null ) 
+		if( objectRequired && @object.Type is null ) 
 			return new PossibleErrors<ArgumentException,ArgumentNullException>(
-				new ArgumentNullException( $"{nameof(@object)}.{nameof(@object.Object)}" )
+				new ArgumentNullException( $"{nameof(@object)}.{nameof(@object.Type)}" )
 			);
 			
 		OneOf<Unit, PossibleErrors<ArgumentException, ArgumentNullException>> result = 
-			@object.Object?.Validate("@object.Object", identifierRequired );
+			@object.Validate("@object", identifierRequired );
 
 		if( result is not null && !result.Is<Unit>() )
 			return result.Second;

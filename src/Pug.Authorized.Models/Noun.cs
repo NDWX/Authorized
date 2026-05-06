@@ -1,9 +1,11 @@
-﻿using System.Runtime.Serialization;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Runtime.Serialization;
 
 namespace Pug.Authorized;
 
 public sealed record Noun
 {
+	[Required( AllowEmptyStrings = true)]
 	[DataMember(IsRequired = true)]
 	public string Type
 	{
@@ -15,6 +17,7 @@ public sealed record Noun
 #endif
 	}
 		
+	[Required( AllowEmptyStrings = true)]
 	[DataMember(IsRequired = true)]
 	public string Identifier
 	{

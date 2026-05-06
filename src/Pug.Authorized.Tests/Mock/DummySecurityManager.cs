@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Pug.Application.Security;
 
-namespace Pug.Authorized.Tests;
+namespace Pug.Authorized.Tests.Mock;
 
 internal class DummySecurityManager : ISecurityManager
 {
@@ -16,8 +16,10 @@ internal class DummySecurityManager : ISecurityManager
 					User, "Test User", true, string.Empty,
 					new Dictionary<string, string>()
 				), 
-			new DummyUserRoleProvider(),
+			new UserRoleProviderAdapter(new DummyUserRoleProvider()),
 			null);
-		
+
+	public IPrincipal CurrentPrincipal => CurrentUser;
+
 	public string User { get; set; }
 }

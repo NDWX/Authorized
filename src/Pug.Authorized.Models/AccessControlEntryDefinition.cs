@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 
 namespace Pug.Authorized;
 
 public record AccessControlEntryDefinition
 {
+	[Required]
 	[DataMember(IsRequired = true)]
 	public string Action
 	{
@@ -30,6 +32,7 @@ public record AccessControlEntryDefinition
 #endif
 	}
 
+	[Required]
 	[DataMember(IsRequired = true)]
 	public Permissions Permissions
 	{

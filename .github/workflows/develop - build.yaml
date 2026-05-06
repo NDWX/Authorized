@@ -14,7 +14,7 @@ env:
   DataCommonProject: src/Pug.Authorized.Data.Common/Pug.Authorized.Data.Common.csproj
   SqlLiteDataProject: src/Pug.Authorized.Data.SqlLite/Pug.Authorized.Data.SqlLite.csproj
   DependencyInjectionProject: src/Pug.Authorized.DependencyInjection/Pug.Authorized.DependencyInjection.csproj
-  RestProject: src/Pug.Authorized.WebApi/Pug.Authorized.WebApi.csproj
+  WebApiProject: src/Pug.Authorized.WebApi/Pug.Authorized.WebApi.csproj
 
 jobs:
   build:
@@ -59,7 +59,7 @@ jobs:
         run: dotnet build --nologo --no-restore --configuration ${{env.BuildConfiguration}} ${{env.DependencyInjectionProject}}
 
       - name: Build Rest project
-        run: dotnet build --nologo --no-restore --configuration ${{env.BuildConfiguration}} ${{env.RestProject}}
+        run: dotnet build --nologo --no-restore --configuration ${{env.BuildConfiguration}} ${{env.WebApiProject}}
 
       - name: Run tests
         run: |

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 
 namespace Pug.Authorized;
@@ -6,6 +7,7 @@ namespace Pug.Authorized;
 [DataContract]
 public record AccessControlContextEntry
 {
+	[Required]
 	[DataMember( IsRequired = true )]
 	public string Key
 	{
@@ -17,6 +19,7 @@ public record AccessControlContextEntry
 #endif
 	}
 
+	[Required]
 	[DataMember(IsRequired = true)]
 	public AccessControlContextMatchType  MatchType
 	{
@@ -28,6 +31,7 @@ public record AccessControlContextEntry
 #endif
 	}
 		
+	[Required]
 	[DataMember(IsRequired = true)]
 	public IEnumerable<string> Values
 	{
