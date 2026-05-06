@@ -8,14 +8,14 @@
         <Company>Pug Computing</Company>
         <RepositoryType>Git</RepositoryType>
         <RepositoryUrl>https://github.com/NDWX/Authorized.git</RepositoryUrl>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
-        <FileVersion>1.0.0.0</FileVersion>
-        <PackageVersion>1.0.0</PackageVersion>
+        <AssemblyVersion>1.1.0.0</AssemblyVersion>
+        <FileVersion>1.1.0.0</FileVersion>
+        <PackageVersion>1.1.0</PackageVersion>
         <PackageLicenseExpression>Apache-2.0+</PackageLicenseExpression>
         <License>Apache2.0</License>
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
         <PackageTags>Pug.Authorized Authorization Framework Dependency Injection</PackageTags>
-        <PackageReleaseNotes>Upgraded Pug.Authorized to v1.0.0</PackageReleaseNotes>
+        <PackageReleaseNotes>Upgraded Pug.Authorized to v1.1.0</PackageReleaseNotes>
     </PropertyGroup>
 
     <ItemGroup>

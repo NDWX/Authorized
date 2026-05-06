@@ -12,7 +12,7 @@ env:
   MainProject: src/Pug.Authorized/Pug.Authorized.csproj
   DataCommonProject: src/Pug.Authorized.Data.Common/Pug.Authorized.Data.Common.csproj
   DependencyInjectionProject: src/Pug.Authorized.DependencyInjection/Pug.Authorized.DependencyInjection.csproj
-  RestProject: src/Pug.Authorized.WebApi/Pug.Authorized.WebApi.csproj
+  WebApiProject: src/Pug.Authorized.WebApi/Pug.Authorized.WebApi.csproj
   PackagesBaseFolder: packages
 
 jobs:
@@ -111,7 +111,7 @@ jobs:
         run: rm packages/*.nupkg
 
       - name: Pack Rest project
-        run: dotnet pack --output ${{env.PackagesBaseFolder}} --nologo --configuration ${{env.BuildConfiguration}} ${{env.RestProject}}
+        run: dotnet pack --output ${{env.PackagesBaseFolder}} --nologo --configuration ${{env.BuildConfiguration}} ${{env.WebApiProject}}
 
       - name: Publish Rest NuGet package to NuGet.org
         run: dotnet nuget push ${{env.PackagesBaseFolder}}/*.nupkg --api-key ${{secrets.NUGET_APIKEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
