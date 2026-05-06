@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Pug.Application.Security;
 
-namespace Pug.Authorized.Tests;
+namespace Pug.Authorized.Tests.Mock;
 
 internal class DummyUserRoleProvider : IUserRoleProvider
 {

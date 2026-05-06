@@ -1,9 +1,11 @@
 ﻿using System.Data;
 using Dapper;
 using Pug.Application.Data;
+using Pug.Application.Security;
 using Pug.Authorized;
 using Pug.Authorized.Data;
 using Pug.Effable;
+using Noun = Pug.Authorized.Noun;
 
 namespace Pug.Authorize.Data.SqlLite;
 
@@ -17,7 +19,7 @@ public class AuthorizationDataSession : ApplicationDataSession, IAuthorizedDataS
 		SqlMapper.AddTypeHandler( AccessControlContextEntryTypeHandler.Instance );
 		SqlMapper.AddTypeHandler( AccessControlContextEntriesTypeHandler.Instance );
 	}
-	public async Task<IEnumerable<AccessControlEntry>> GetAccessControlEntriesAsync( string purpose, DomainObject domainObject, Noun subject, string? action = null )
+	public async Task<IEnumerable<AccessControlEntry>> GetAccessControlEntriesAsync( string purpose, NounQualifier domainObject, Noun subject, string? action = null )
 	{
 		return await Connection
 					.QueryAsync<AccessControlEntryDefinition, AccessControlEntry, long, Reference,
@@ -33,8 +35,8 @@ public class AuthorizationDataSession : ApplicationDataSession, IAuthorizedDataS
 						{
 							domain = domainObject.Domain,
 							purpose,
-							objectType = domainObject.Object?.Type,
-							objectIdentifier = domainObject.Object?.Identifier,
+							objectType = domainObject.Type,
+							objectIdentifier = domainObject.Identifier,
 							subjectType = subject.Type,
 							subjectIdentifier = subject.Identifier,
 							action
@@ -64,7 +66,7 @@ public class AuthorizationDataSession : ApplicationDataSession, IAuthorizedDataS
 						} );
 	}
 
-	public async Task<IDictionary<Noun, IEnumerable<AccessControlEntry>>> GetAccessControlListsAsync( string purpose, DomainObject domainObject )
+	public async Task<IDictionary<Noun, IEnumerable<AccessControlEntry>>> GetAccessControlListsAsync( string purpose, NounQualifier domainObject )
 	{
 		IEnumerable<KeyValuePair<Noun, AccessControlEntry>> entries =
 			await Connection
@@ -79,8 +81,8 @@ public class AuthorizationDataSession : ApplicationDataSession, IAuthorizedDataS
 					{
 						domain = domainObject.Domain,
 						purpose,
-						objectType = domainObject.Object.Type,
-						objectIdentifier = domainObject.Object.Identifier
+						objectType = domainObject.Type,
+						objectIdentifier = domainObject.Identifier
 					},
 					splitOn: "identifier, action, identifier, timestamp, type, timestamp, type",
 					map: ( subject, definition, entry, registrationTimestamp, registrar, lastUpdateTimestamp, lastUpdater ) =>
@@ -110,7 +112,7 @@ public class AuthorizationDataSession : ApplicationDataSession, IAuthorizedDataS
 				.ToDictionary( x => x.Key, x => x.Value );
 	}
 
-	public async Task DeleteAccessControlEntriesAsync( string purpose, DomainObject domainObject, Noun? subject = null )
+	public async Task DeleteAccessControlEntriesAsync( string purpose, NounQualifier domainObject, Noun? subject = null )
 	{
 		await Connection.ExecuteAsync(
 			@"delete from authorizations 
@@ -121,8 +123,8 @@ public class AuthorizationDataSession : ApplicationDataSession, IAuthorizedDataS
 			{
 				domain = domainObject.Domain,
 				purpose,
-				objectType = domainObject.Object.Type,
-				objectIdentifier = domainObject.Object.Identifier,
+				objectType = domainObject.Type,
+				objectIdentifier = domainObject.Identifier,
 				subjectType = subject?.Type,
 				subjectIdentifier = subject?.Identifier
 			}
@@ -139,7 +141,7 @@ public class AuthorizationDataSession : ApplicationDataSession, IAuthorizedDataS
 		return rows > 0;
 	}
 
-	public async Task InsertAsync( string purpose, DomainObject domainObject, Noun subject, AccessControlEntry accessControlEntry )
+	public async Task InsertAsync( string purpose, NounQualifier domainObject, Noun subject, AccessControlEntry accessControlEntry )
 	{
 		int rows = await Connection.ExecuteAsync(
 						@"insert into authorizations(identifier, domain, purpose, objectType, objectIdentifier, 
@@ -155,8 +157,8 @@ public class AuthorizationDataSession : ApplicationDataSession, IAuthorizedDataS
 							identifier = accessControlEntry.Identifier,
 							domain = domainObject.Domain,
 							purpose,
-							objectType = domainObject.Object.Type,
-							objectIdentifier = domainObject.Object.Identifier,
+							objectType = domainObject.Type,
+							objectIdentifier = domainObject.Identifier,
 							subjectType = subject.Type,
 							subjectIdentifier = subject.Identifier,
 							action = accessControlEntry.Definition.Action,

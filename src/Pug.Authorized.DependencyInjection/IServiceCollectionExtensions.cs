@@ -14,11 +14,28 @@ public static class IServiceCollectionExtensions
 	{
 		serviceCollection.AddSingleton( provider =>
 			{
-				ISessionUserIdentityAccessor? sessionUserIdentityAccessor =
+				IPrincipalIdentityAccessor? principalIdentityAccessor =
+					provider.GetService<IPrincipalIdentityAccessor>();
+				
+				if( principalIdentityAccessor is null )
+					principalIdentityAccessor =
 					provider.GetService<ISessionUserIdentityAccessor>();
+				
+				if( principalIdentityAccessor is null )
+					throw new InvalidOperationException( "Principal identity accessor is not registered" );
 
-				IUserRoleProvider? userRoleProvider =
-					provider.GetService<IUserRoleProvider>();
+				IPrincipalRoleProvider? userRoleProvider =
+					provider.GetService<IPrincipalRoleProvider>();
+
+				if( userRoleProvider is null )
+				{
+					IUserRoleProvider? roleProvider = provider.GetService<IUserRoleProvider>();
+					
+					if( roleProvider is null )
+						throw new InvalidOperationException( "Principal role provider is not registered" );
+					
+					userRoleProvider = new UserRoleProviderAdapter( roleProvider );
+				}
 
 				IApplicationData<IAuthorizedDataStore>? applicationData =
 					provider.GetService<IApplicationData<IAuthorizedDataStore>>();
@@ -26,7 +43,7 @@ public static class IServiceCollectionExtensions
 				return new Authorized(
 					options,
 					identifierGenerator,
-					sessionUserIdentityAccessor,
+					principalIdentityAccessor,
 					userRoleProvider,
 					applicationData
 				);

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
+using Pug.Application.Security;
 using Pug.Authorize.Data.SqlLite;
 using Pug.Effable;
 using Xunit;
@@ -18,13 +19,12 @@ public static class TestActions
 [SuppressMessage( "ReSharper", "HeapView.DelegateAllocation" )]
 public class SqliteStoreTest : IClassFixture<StandardTestContext>
 {
-	private static readonly DomainObject Object1 = new ()
+	private static readonly NounQualifier Object1 = new ()
 	{
-		Domain = "DEFAULT", Object = new Noun()
-		{
-			Type = "OBJECT", Identifier = "OBJECT1"
+		Domain = "DEFAULT",
+		Type = "OBJECT", 
+		Identifier = "OBJECT1"
 
-		}
 	};
 
 	private static readonly Noun User1 = new () { Type = SubjectTypes.User, Identifier = "USER1" };

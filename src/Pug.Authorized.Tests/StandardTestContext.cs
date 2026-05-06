@@ -3,6 +3,7 @@ using System.Data.SQLite;
 using System.IO;
 using System.Threading;
 using Pug.Authorize.Data.SqlLite;
+using Pug.Authorized.Tests.Mock;
 using Pug.Effable;
 
 namespace Pug.Authorized.Tests;

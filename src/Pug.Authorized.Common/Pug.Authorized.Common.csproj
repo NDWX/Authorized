@@ -19,7 +19,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="Pug.Application.Security.Abstractions" Version="3.0.1" />
+	  <PackageReference Include="Pug.Application.Security.Abstractions" Version="3.1.0" />
 	  <PackageReference Include="SonarAnalyzer.CSharp" Version="9.19.0.84025">
 	    <PrivateAssets>all</PrivateAssets>
 	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

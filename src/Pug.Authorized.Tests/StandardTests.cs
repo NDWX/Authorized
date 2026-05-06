@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Pug.Application.Security;
+using Pug.Authorized.Tests.Mock;
 using Xunit;
 using Xunit.Extensions.Ordering;
 
@@ -50,23 +51,25 @@ public class StandardTests : IClassFixture<StandardTestContext>
 		Identifier = "OBJECT2"
 	};
 
-	private readonly DomainObject _domainObject1;
-	private readonly DomainObject _domainObject2;
+	private readonly NounQualifier _domainObject1;
+	private readonly NounQualifier _domainObject2;
 
 	public StandardTests( StandardTestContext testContext )
 	{
 		TestContext = testContext;
 
-		_domainObject1 = new DomainObject
+		_domainObject1 = new NounQualifier
 		{
 			Domain = string.Empty,
-			Object = _object1
+			Type = _object1.Type,
+			Identifier = _object1.Identifier
 		};
 
-		_domainObject2 = new DomainObject
+		_domainObject2 = new NounQualifier
 		{
 			Domain = string.Empty,
-			Object = _object2
+			Type = _object2.Type,
+			Identifier = _object2.Identifier
 		};
 	}
 
@@ -312,14 +315,11 @@ public class StandardTests : IClassFixture<StandardTestContext>
 							Identifier = "unknown"
 						},
 						AdministrativeActions.ManagePermissions,
-						new DomainObject
+						new NounQualifier
 						{
 							Domain = string.Empty,
-							Object = new Noun()
-							{
 								Type = "OBJECT",
 								Identifier = "DEFAULT"
-							}
 						},
 						new Dictionary<string, IEnumerable<string>>(),
 						StandardTestContext.Purpose
@@ -339,14 +339,11 @@ public class StandardTests : IClassFixture<StandardTestContext>
 							Identifier = "user"
 						},
 						AdministrativeActions.ManagePermissions,
-						new DomainObject
+						new NounQualifier
 						{
 							Domain = string.Empty,
-							Object = new Noun()
-							{
 								Type = "OBJECT",
 								Identifier = "DEFAULT"
-							}
 						},
 						new Dictionary<string, IEnumerable<string>>(),
 						StandardTestContext.Purpose
