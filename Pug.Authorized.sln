@@ -1,20 +1,20 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pug.Authorized", "src\Pug.Authorized\Pug.Authorized.csproj", "{E9A5A29A-A0AE-4BF3-853B-A441545B63D5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pug.Authorized", "src/Pug.Authorized/Pug.Authorized.csproj", "{E9A5A29A-A0AE-4BF3-853B-A441545B63D5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pug.Authorized.Common", "src\Pug.Authorized.Common\Pug.Authorized.Common.csproj", "{CAD7D101-8204-4394-B27D-917EE7D61846}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pug.Authorized.Common", "src/Pug.Authorized.Common/Pug.Authorized.Common.csproj", "{CAD7D101-8204-4394-B27D-917EE7D61846}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pug.Authorized.Tests", "src\Pug.Authorized.Tests\Pug.Authorized.Tests.csproj", "{560AC4EE-1AA8-4AB3-A131-D044295AE853}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pug.Authorized.Tests", "src/Pug.Authorized.Tests/Pug.Authorized.Tests.csproj", "{560AC4EE-1AA8-4AB3-A131-D044295AE853}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pug.Authorized.DependencyInjection", "src\Pug.Authorized.DependencyInjection\Pug.Authorized.DependencyInjection.csproj", "{21FBEBCD-574B-4975-9D5E-AF87198C299F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pug.Authorized.DependencyInjection", "src/Pug.Authorized.DependencyInjection/Pug.Authorized.DependencyInjection.csproj", "{21FBEBCD-574B-4975-9D5E-AF87198C299F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pug.Authorized.WebApi", "src\Pug.Authorized.WebApi\Pug.Authorized.WebApi.csproj", "{81DEF572-4B2F-4558-ACFE-C5DD1AA9A966}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pug.Authorized.WebApi", "src/Pug.Authorized.WebApi/Pug.Authorized.WebApi.csproj", "{81DEF572-4B2F-4558-ACFE-C5DD1AA9A966}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pug.Authorized.Data.Common", "src\Pug.Authorized.Data.Common\Pug.Authorized.Data.Common.csproj", "{1C20C4FA-1E9A-433B-96E5-5B6F4F1E5A07}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pug.Authorized.Data.Common", "src/Pug.Authorized.Data.Common/Pug.Authorized.Data.Common.csproj", "{1C20C4FA-1E9A-433B-96E5-5B6F4F1E5A07}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pug.Authorized.Models", "src\Pug.Authorized.Models\Pug.Authorized.Models.csproj", "{BA54D559-F6CF-4E57-BC5A-62451B228857}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pug.Authorized.Models", "src/Pug.Authorized.Models/Pug.Authorized.Models.csproj", "{BA54D559-F6CF-4E57-BC5A-62451B228857}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pug.Authorized.Data.SqlLite", "src\Pug.Authorized.Data.SqlLite\Pug.Authorized.Data.SqlLite.csproj", "{1265C00E-9D9B-4BDE-AA17-B1CE659BE11B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pug.Authorized.Data.SqlLite", "src/Pug.Authorized.Data.SqlLite/Pug.Authorized.Data.SqlLite.csproj", "{1265C00E-9D9B-4BDE-AA17-B1CE659BE11B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{0EFC216A-5245-4786-A9A3-954DD2770690}"
 EndProject

@@ -26,13 +26,13 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\Pug.Authorized.Data.SqlLite\Pug.Authorized.Data.SqlLite.csproj" />
-	  <ProjectReference Include="..\Pug.Authorized\Pug.Authorized.csproj" />
+	  <ProjectReference Include="../Pug.Authorized.Data.SqlLite/Pug.Authorized.Data.SqlLite.csproj" />
+	  <ProjectReference Include="../Pug.Authorized/Pug.Authorized.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Compile Remove="Mock\MemoryDataStore.cs" />
-	  <Compile Remove="Mock\MemoryDataProvider.cs" />
+	  <Compile Remove="Mock/MemoryDataStore.cs" />
+	  <Compile Remove="Mock/MemoryDataProvider.cs" />
 	</ItemGroup>
 
 </Project>

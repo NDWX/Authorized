@@ -23,7 +23,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Pug.Authorized\Pug.Authorized.csproj" />
+      <ProjectReference Include="../Pug.Authorized/Pug.Authorized.csproj" />
     </ItemGroup>
 
 </Project>

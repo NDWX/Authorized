@@ -20,7 +20,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Pug.Authorized.Data.Common\Pug.Authorized.Data.Common.csproj" />
+      <ProjectReference Include="../Pug.Authorized.Data.Common/Pug.Authorized.Data.Common.csproj" />
     </ItemGroup>
 
     <ItemGroup>

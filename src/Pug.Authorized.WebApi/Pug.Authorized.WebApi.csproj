@@ -36,6 +36,6 @@
     </ItemGroup>
     
     <ItemGroup>
-      <ProjectReference Include="..\Pug.Authorized.Common\Pug.Authorized.Common.csproj" />
+      <ProjectReference Include="../Pug.Authorized.Common/Pug.Authorized.Common.csproj" />
     </ItemGroup>
 </Project>
