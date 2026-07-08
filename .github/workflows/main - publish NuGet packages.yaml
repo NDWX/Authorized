@@ -11,6 +11,7 @@ env:
   CommonProject: src/Pug.Authorized.Common/Pug.Authorized.Common.csproj
   MainProject: src/Pug.Authorized/Pug.Authorized.csproj
   DataCommonProject: src/Pug.Authorized.Data.Common/Pug.Authorized.Data.Common.csproj
+  SqlLiteDataProject: src/Pug.Authorized.Data.SqlLite/Pug.Authorized.Data.SqlLite.csproj
   DependencyInjectionProject: src/Pug.Authorized.DependencyInjection/Pug.Authorized.DependencyInjection.csproj
   WebApiProject: src/Pug.Authorized.WebApi/Pug.Authorized.WebApi.csproj
   PackagesBaseFolder: packages
@@ -87,6 +88,15 @@ jobs:
         run: dotnet pack --output ${{env.PackagesBaseFolder}} --nologo --configuration ${{env.BuildConfiguration}} ${{env.DataCommonProject}}
 
       - name: Publish DataCommon NuGet package to NuGet.org
+        run: dotnet nuget push ${{env.PackagesBaseFolder}}/*.nupkg --api-key ${{secrets.NUGET_APIKEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+      - name: Clear packages folder
+        run: rm packages/*.nupkg
+
+      - name: Pack Sqlite project
+        run: dotnet pack --output ${{env.PackagesBaseFolder}} --nologo --configuration ${{env.BuildConfiguration}} ${{env.SqlLiteDataProject}}
+
+      - name: Publish Sqlite  NuGet package to NuGet.org
         run: dotnet nuget push ${{env.PackagesBaseFolder}}/*.nupkg --api-key ${{secrets.NUGET_APIKEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
 
       - name: Clear packages folder
