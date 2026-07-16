@@ -26,7 +26,7 @@ public class Authorized : IAuthorized
 										throw new ArgumentNullException( nameof(sessionUserIdentityAccessor) );
 		_principalRoleProvider = principalRoleProvider ?? throw new ArgumentNullException( nameof(principalRoleProvider) );
 	}
-	
+
 	public Authorized( Options options, IdentifierGenerator identifierGenerator,
 						ISessionUserIdentityAccessor sessionUserIdentityAccessor,
 						IUserRoleProvider userRoleProvider,
@@ -180,7 +180,7 @@ public class Authorized : IAuthorized
 						subject,
 						action,
 						purpose,
-						@object with { Type = null, Identifier = null },
+						@object with { Type = string.Empty, Identifier = string.Empty },
 						context,
 						dataSession
 					)
@@ -257,7 +257,7 @@ public class Authorized : IAuthorized
 																string purpose, IAuthorizedDataStore dataSession )
 	{
 		// check authorization for user
-		Permissions permissions = 
+		Permissions permissions =
 			await GetEffectivePermissionAsync( subject, action, @object, context, purpose, dataSession )
 				.ConfigureAwait( false );
 
@@ -274,7 +274,7 @@ public class Authorized : IAuthorized
             await GetEffectivePermissionAsync(effectiveRoles, action, @object, context, purpose, dataSession)
 				.ConfigureAwait( false );
 
-        if (effectivePermissions == Permissions.Denied || subject.Type == SubjectTypes.Group || 
+        if (effectivePermissions == Permissions.Denied || subject.Type == SubjectTypes.Group ||
 			@object.Domain == _options.ManagementDomain)
             return effectivePermissions;
 
@@ -345,7 +345,7 @@ public class Authorized : IAuthorized
 		};
 
 		if( subject is null ) return authorizationContext;
-		
+
 		authorizationContext[AdministrativeAccessControlContextKeys.SubjectType] = new[] { subject.Type };
 		authorizationContext[AdministrativeAccessControlContextKeys.SubjectIdentifier] =
 			new[] { subject.Identifier };

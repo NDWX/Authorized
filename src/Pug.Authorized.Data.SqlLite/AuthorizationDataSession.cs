@@ -29,8 +29,8 @@ public class AuthorizationDataSession : ApplicationDataSession, IAuthorizedDataS
                            	lastUpdateTimestamp as timestamp, lastUpdaterType as type, lastUpdaterIdentifier as identifier
 							from authorizations
 							where domain = @domain and purpose = @purpose 
-								and (@objectType is null or objectType = @objectType) and (@objectIdentifier is null or objectIdentifier = @objectIdentifier)
-								and subjectType = @subjectType and subjectIdentifier = @subjectIdentifier and (@action is null or @action = action)",
+								and objectType = coalesce(@objectType, '') and  objectIdentifier = coalesce(@objectIdentifier, '')
+								and subjectType = @subjectType and subjectIdentifier = @subjectIdentifier and @action = action",
 						param: new
 						{
 							domain = domainObject.Domain,
