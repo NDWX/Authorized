@@ -129,46 +129,60 @@ public class Authorized : IAuthorized
 	///		</item>
 	/// </list>
 	/// </returns>
-	private static async Task<Permissions> GetEffectivePermissionAsync( Noun subject, string action, DomainObject @object,
-																		IDictionary<string, IEnumerable<string>> context,
-																		string purpose,
-																		IAuthorizedDataStore dataSession )
+	private static async Task<Permissions> GetEffectivePermissionAsync(Noun subject, string action,
+		DomainObject @object,
+		IDictionary<string, IEnumerable<string>> context,
+		string purpose,
+		IAuthorizedDataStore dataSession)
 	{
 		// check authorization for specified parameters
-		Permissions permissions =
-			await GetPermissionAsync( subject, action, purpose, @object, context, dataSession )
-				.ConfigureAwait( false );
+		Permissions permission =
+			await GetPermissionAsync(subject, action, purpose, @object, context, dataSession)
+				.ConfigureAwait(false);
 
-		if( permissions != Permissions.None )
-			return permissions;
-
-		// check permission for 'action' against entire object 'type' rather than specific object
-		if( @object != null && !string.IsNullOrWhiteSpace( @object.Object.Type ) )
+		if (permission != Permissions.None)
+			return permission;
+		
+		if (!string.IsNullOrWhiteSpace(@object.Object.Identifier))
 		{
-			// check authorization for object type
-			if( !string.IsNullOrWhiteSpace( @object.Object.Identifier ) )
-			{
-				permissions =
-					await GetPermissionAsync( subject, action, purpose, @object with
-					{
-						Object = @object.Object with { Identifier = string.Empty }
-					}, context, dataSession );
+			// check permission for 'action' against entire object 'type' rather than specific object
+			permission =
+				await GetPermissionAsync(
+						subject, 
+						action, 
+						purpose, 
+						@object with
+						{
+							Object = @object.Object with { Identifier = string.Empty }
+						},
+						context,
+						dataSession
+					)
+					.ConfigureAwait(false);
 
-				if( permissions != Permissions.None )
-					return permissions;
-			}
-
-			// check authorization for action
-			permissions =
-				await GetPermissionAsync( subject, action,
-										purpose, @object with { Object = null }, context, dataSession );
-
-			if( permissions != Permissions.None )
-				return permissions;
-
+			if (permission != Permissions.None)
+				return permission;
 		}
 
-		return Permissions.None;
+		if (!string.IsNullOrWhiteSpace(@object.Object.Type))
+		{
+			// check authorization for action in domain
+			permission =
+				await GetPermissionAsync(subject, action, purpose, @object with { Object = null }, context, dataSession)
+					.ConfigureAwait(false);
+
+			if (permission != Permissions.None)
+				return permission;
+		}
+
+		if (!string.IsNullOrWhiteSpace(@object.Domain))
+		{
+			// check authorization for action in all domains
+			permission =
+				await GetPermissionAsync(subject, action, purpose, null, context, dataSession).ConfigureAwait(false);
+		}
+
+		return permission;
 	}
 
 	/// <summary>
@@ -196,8 +210,8 @@ public class Authorized : IAuthorized
 		foreach( string role in roles )
 		{
 			permissions = await GetEffectivePermissionAsync(
-							new Noun() { Identifier = role, Type = SubjectTypes.Group },
-							action, @object, context, purpose, dataStore );
+				new Noun() { Identifier = role, Type = SubjectTypes.Group },
+				action, @object, context, purpose, dataStore ).ConfigureAwait(false);
 
 			if( permissions == Permissions.Denied )
 				return Permissions.Denied;
@@ -229,7 +243,7 @@ public class Authorized : IAuthorized
 	{
 		// check authorization for user
 		Permissions permissions = await GetEffectivePermissionAsync( subject, action, @object, context,
-																	purpose, dataSession );
+			purpose, dataSession ).ConfigureAwait(false);
 
 		if( permissions == Permissions.Denied )
 			return Permissions.Denied;
@@ -238,7 +252,7 @@ public class Authorized : IAuthorized
 
 		// Evaluate effective roles authorization
 		effectivePermissions |=
-			await GetEffectivePermissionAsync( effectiveRoles, action, @object, context, purpose, dataSession );
+			await GetEffectivePermissionAsync( effectiveRoles, action, @object, context, purpose, dataSession ).ConfigureAwait(false);
 
 		if( effectivePermissions == Permissions.Denied || subject.Type == SubjectTypes.Group ||
 			@object.Domain == _options.ManagementDomain )
@@ -251,7 +265,7 @@ public class Authorized : IAuthorized
 			return effectivePermissions;
 
 		effectivePermissions |=
-			await GetEffectivePermissionAsync( managementRoles, action, @object, context, purpose, dataSession );
+			await GetEffectivePermissionAsync( managementRoles, action, @object, context, purpose, dataSession ).ConfigureAwait(false);
 
 		return effectivePermissions;
 	}
@@ -266,15 +280,15 @@ public class Authorized : IAuthorized
 				bool allowed = false;
 
 				Permissions effectivePermissions = await ctx.@this.GetEffectivePermissionAsync(
-														ctx.authorizationSubject,
-														ctx.@this._userRoleProvider.GetUserRoles(
-															ctx.authorizationSubject.Identifier,
-															ctx.@object.Domain ),
-														AdministrativeActions.ManagePermissions,
-														ctx.@object,
-														ctx.authorizationContext,
-														ctx.purpose,
-														dataSession );
+					ctx.authorizationSubject,
+					ctx.@this._userRoleProvider.GetUserRoles(
+						ctx.authorizationSubject.Identifier,
+						ctx.@object.Domain ),
+					AdministrativeActions.ManagePermissions,
+					ctx.@object,
+					ctx.authorizationContext,
+					ctx.purpose,
+					dataSession ).ConfigureAwait(false);
 
 				allowed =
 					( // users with permissions are allowed to manage permissions
@@ -333,8 +347,8 @@ public class Authorized : IAuthorized
 			{
 				Permissions effectivePermission =
 					await ctx.@this.GetEffectivePermissionAsync( ctx.subject, ctx.effectiveRoles, ctx.action,
-																ctx.@object, ctx.context, ctx.purpose,
-																dataSession );
+						ctx.@object, ctx.context, ctx.purpose,
+						dataSession ).ConfigureAwait(false);
 
 				return effectivePermission ==
 						Permissions.Allowed
@@ -358,8 +372,8 @@ public class Authorized : IAuthorized
 			{
 				Permissions effectivePermissions =
 					await ctx.@this.GetEffectivePermissionAsync( ctx.subject, ctx.effectiveRoles, ctx.action,
-																ctx.@object, ctx.context, ctx.purpose,
-																dataSession );
+						ctx.@object, ctx.context, ctx.purpose,
+						dataSession ).ConfigureAwait(false);
 
 				if( effectivePermissions == Permissions.Denied )
 					return effectivePermissions;
@@ -427,67 +441,67 @@ public class Authorized : IAuthorized
 		Noun authorizationSubject = GetCurrentSubject();
 
 		return await _dataStoreProvider.ExecuteAsync(
-					async ( dataSession, ctx ) =>
-					{
-						bool allowed = false;
+			async ( dataSession, ctx ) =>
+			{
+				bool allowed = false;
 
-						switch( ctx.@this._options.AdministrativeActionGrantees )
-						{
-							case AdministrativeActionGrantees.Administrators:
+				switch( ctx.@this._options.AdministrativeActionGrantees )
+				{
+					case AdministrativeActionGrantees.Administrators:
 
-								allowed = ctx.@this.UserIsAdministrator();
+						allowed = ctx.@this.UserIsAdministrator();
 
-								break;
+						break;
 
-							case AdministrativeActionGrantees.AllowedUsers:
+					case AdministrativeActionGrantees.AllowedUsers:
 
-								Permissions effectivePermissions = await ctx.@this.GetEffectivePermissionAsync(
-																		ctx.authorizationSubject,
-																		ctx.@this._userRoleProvider
-																			.GetUserRoles(
-																				ctx.authorizationSubject
-																					.Identifier,
-																				ctx.@object.Domain ),
-																		AdministrativeActions.ViewPermissions,
-																		ctx.@object,
-																		ctx.authorizationContext,
-																		ctx.purpose,
-																		dataSession );
+						Permissions effectivePermissions = await ctx.@this.GetEffectivePermissionAsync(
+							ctx.authorizationSubject,
+							ctx.@this._userRoleProvider
+								.GetUserRoles(
+									ctx.authorizationSubject
+										.Identifier,
+									ctx.@object.Domain ),
+							AdministrativeActions.ViewPermissions,
+							ctx.@object,
+							ctx.authorizationContext,
+							ctx.purpose,
+							dataSession ).ConfigureAwait(false);
 
-								allowed =
-									( // users with permissions are allowed to manage permissions
-										effectivePermissions == Permissions.Allowed
-									) ||
-									( ctx.@this.UserIsAdministrator() &&
-									effectivePermissions != Permissions.Denied );
+						allowed =
+							( // users with permissions are allowed to manage permissions
+								effectivePermissions == Permissions.Allowed
+							) ||
+							( ctx.@this.UserIsAdministrator() &&
+							  effectivePermissions != Permissions.Denied );
 
-								break;
+						break;
 
-							case AdministrativeActionGrantees.Subject:
+					case AdministrativeActionGrantees.Subject:
 
-								allowed = ctx.subject != null &&
-										ctx.subject.Type == SubjectTypes.User &&
-										!string.IsNullOrEmpty( ctx.subject.Identifier ) &&
-										ctx.authorizationSubject.Identifier ==
-										ctx.subject.Identifier;
+						allowed = ctx.subject != null &&
+						          ctx.subject.Type == SubjectTypes.User &&
+						          !string.IsNullOrEmpty( ctx.subject.Identifier ) &&
+						          ctx.authorizationSubject.Identifier ==
+						          ctx.subject.Identifier;
 
-								break;
-						}
+						break;
+				}
 
-						if( !allowed )
-						{
-							throw new NotAuthorized();
-						}
+				if( !allowed )
+				{
+					throw new NotAuthorized();
+				}
 
-						return await dataSession.GetAccessControlEntriesAsync(
-									ctx.purpose, ctx.@object, ctx.subject );
-					},
-					new
-					{
-						@this = this, subject, @object = @object, purpose, authorizationContext,
-						authorizationSubject
-					}
-				);
+				return await dataSession.GetAccessControlEntriesAsync(
+					ctx.purpose, ctx.@object, ctx.subject ).ConfigureAwait(false);
+			},
+			new
+			{
+				@this = this, subject, @object = @object, purpose, authorizationContext,
+				authorizationSubject
+			}
+		).ConfigureAwait(false);
 	}
 
 	public async Task<IDictionary<Noun, IEnumerable<AccessControlEntry>>> GetAccessControlListsAsync( string purpose, DomainObject @object )
@@ -500,63 +514,63 @@ public class Authorized : IAuthorized
 		Noun authorizationSubject = GetCurrentSubject();
 
 		return await _dataStoreProvider.ExecuteAsync(
-					async ( dataSession, ctx ) =>
-					{
-						bool allowed = false;
+			async ( dataSession, ctx ) =>
+			{
+				bool allowed = false;
 
-						switch( ctx.@this._options.AdministrativeActionGrantees )
-						{
-							case AdministrativeActionGrantees.Administrators:
+				switch( ctx.@this._options.AdministrativeActionGrantees )
+				{
+					case AdministrativeActionGrantees.Administrators:
 
-								allowed = ctx.@this.UserIsAdministrator();
+						allowed = ctx.@this.UserIsAdministrator();
 
-								break;
+						break;
 
-							case AdministrativeActionGrantees.AllowedUsers:
+					case AdministrativeActionGrantees.AllowedUsers:
 
-								Permissions effectivePermissions = await ctx.@this.GetEffectivePermissionAsync(
-																		ctx.authorizationSubject,
-																		ctx.@this._userRoleProvider
-																			.GetUserRoles(
-																				ctx.authorizationSubject
-																					.Identifier,
-																				ctx.@object.Domain ),
-																		AdministrativeActions.ViewPermissions,
-																		ctx.@object,
-																		ctx.authorizationContext,
-																		ctx.purpose,
-																		dataSession );
+						Permissions effectivePermissions = await ctx.@this.GetEffectivePermissionAsync(
+							ctx.authorizationSubject,
+							ctx.@this._userRoleProvider
+								.GetUserRoles(
+									ctx.authorizationSubject
+										.Identifier,
+									ctx.@object.Domain ),
+							AdministrativeActions.ViewPermissions,
+							ctx.@object,
+							ctx.authorizationContext,
+							ctx.purpose,
+							dataSession ).ConfigureAwait(false);
 
-								allowed =
-									( // users with permissions are allowed to manage permissions
-										effectivePermissions == Permissions.Allowed
-									) ||
-									( ctx.@this.UserIsAdministrator() &&
-									effectivePermissions != Permissions.Denied );
+						allowed =
+							( // users with permissions are allowed to manage permissions
+								effectivePermissions == Permissions.Allowed
+							) ||
+							( ctx.@this.UserIsAdministrator() &&
+							  effectivePermissions != Permissions.Denied );
 
-								break;
+						break;
 
-							case AdministrativeActionGrantees.Subject:
+					case AdministrativeActionGrantees.Subject:
 
-								allowed = false;
+						allowed = false;
 
-								break;
-						}
+						break;
+				}
 
-						if( !allowed )
-						{
-							throw new NotAuthorized();
-						}
+				if( !allowed )
+				{
+					throw new NotAuthorized();
+				}
 
-						return await dataSession.GetAccessControlListsAsync(
-									ctx.purpose, ctx.@object );
-					},
-					new
-					{
-						@this = this, @object, purpose, authorizationContext,
-						authorizationSubject
-					}
-				);
+				return await dataSession.GetAccessControlListsAsync(
+					ctx.purpose, ctx.@object ).ConfigureAwait(false);
+			},
+			new
+			{
+				@this = this, @object, purpose, authorizationContext,
+				authorizationSubject
+			}
+		).ConfigureAwait(false);
 	}
 
 	private static async Task Insert( AccessControlEntryDefinition entry, string purpose, DomainObject @object,
@@ -565,7 +579,7 @@ public class Authorized : IAuthorized
 	{
 		string identifier = idGenerator.GetNext();
 
-		if( await dataStore.AccessControlEntryExistsAsync( identifier ) )
+		if( await dataStore.AccessControlEntryExistsAsync( identifier ).ConfigureAwait(false) )
 			throw new DuplicateIdentifierException( "Identifier generator returned duplicated key." );
 
 		AccessControlEntry ace = new ()
@@ -583,7 +597,7 @@ public class Authorized : IAuthorized
 			}
 		};
 
-		await dataStore.InsertAsync( purpose, @object, subject, ace );
+		await dataStore.InsertAsync( purpose, @object, subject, ace ).ConfigureAwait(false);
 	}
 
 	private static async Task SetAccessControlEntries( string purpose, DomainObject @object, Noun subject,
@@ -593,9 +607,9 @@ public class Authorized : IAuthorized
 														IdentifierGenerator identifierGenerator )
 	{
 		IEnumerable<AccessControlEntry> existingEntries =
-			await dataSession.GetAccessControlEntriesAsync( purpose, @object, subject );
+			await dataSession.GetAccessControlEntriesAsync( purpose, @object, subject ).ConfigureAwait(false);
 
-		await dataSession.DeleteAccessControlEntriesAsync( purpose, @object, subject );
+		await dataSession.DeleteAccessControlEntriesAsync( purpose, @object, subject ).ConfigureAwait(false);
 
 		foreach( AccessControlEntryDefinition definition in entries )
 		{
@@ -609,24 +623,24 @@ public class Authorized : IAuthorized
 			if( existingEntry is null )
 			{
 				await Insert( definition, purpose, @object, subject, dataSession, identifierGenerator,
-							currentUser );
+					currentUser ).ConfigureAwait(false);
 			}
 			else
 			{
 				await dataSession.InsertAsync( purpose, @object, subject,
-												existingEntry with
-												{
-													Definition = definition,
-													LastUpdate = new ActionContext<Reference>()
-													{
-														Actor = new Reference()
-														{
-															Type = "USER",
-															Identifier = currentUser.Identifier
-														},
-														Timestamp = DateTime.UtcNow
-													}
-												} );
+					existingEntry with
+					{
+						Definition = definition,
+						LastUpdate = new ActionContext<Reference>()
+						{
+							Actor = new Reference()
+							{
+								Type = "USER",
+								Identifier = currentUser.Identifier
+							},
+							Timestamp = DateTime.UtcNow
+						}
+					} ).ConfigureAwait(false);
 			}
 		}
 	}
@@ -649,20 +663,20 @@ public class Authorized : IAuthorized
 
 		// ReSharper disable once PossibleMultipleEnumeration
 		await CheckSetAceAuthorizationAsync( purpose, @object, authorizationContext,
-											authorizationSubject );
+			authorizationSubject ).ConfigureAwait(false);
 
 		await _dataStoreProvider.PerformAsync(
 			async ( dataSession, ctx ) =>
 			{
 				await SetAccessControlEntries( ctx.purpose, ctx.@object, ctx.subject, ctx.entries, dataSession,
-												ctx.@this._sessionUserIdentityAccessor.GetUserIdentity(),
-												ctx.@this._identifierGenerator );
+					ctx.@this._sessionUserIdentityAccessor.GetUserIdentity(),
+					ctx.@this._identifierGenerator ).ConfigureAwait(false);
 			},
 			new
 			{
 				@this = this, @object, purpose, subject, entries, authorizationContext, authorizationSubject
 			}
-		);
+		).ConfigureAwait(false);
 	}
 
 	public async Task SetAccessControlListsAsync( string purpose, DomainObject @object,
@@ -688,23 +702,23 @@ public class Authorized : IAuthorized
 
 		// ReSharper disable once PossibleMultipleEnumeration
 		await CheckSetAceAuthorizationAsync( purpose, @object, authorizationContext,
-											authorizationSubject );
+			authorizationSubject ).ConfigureAwait(false);
 
 		await _dataStoreProvider.PerformAsync(
 			async ( dataSession, ctx ) =>
 			{
 				foreach( KeyValuePair<Noun, IEnumerable<AccessControlEntryDefinition>> list in
-						ctx.accessControlLists )
+				        ctx.accessControlLists )
 				{
 					await SetAccessControlEntries( ctx.purpose, ctx.@object, list.Key, list.Value, dataSession,
-													ctx.@this._sessionUserIdentityAccessor.GetUserIdentity(),
-													ctx.@this._identifierGenerator );
+						ctx.@this._sessionUserIdentityAccessor.GetUserIdentity(),
+						ctx.@this._identifierGenerator ).ConfigureAwait(false);
 				}
 			},
 			new
 			{
 				@this = this, @object, purpose, accessControlLists = accessControlLists, authorizationContext, authorizationSubject
 			}
-		);
+		).ConfigureAwait(false);
 	}
 }

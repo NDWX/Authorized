@@ -27,17 +27,20 @@ public class AuthorizationDataSession : ApplicationDataSession, IAuthorizedDataS
                            	lastUpdateTimestamp as timestamp, lastUpdaterType as type, lastUpdaterIdentifier as identifier
 							from authorizations
 							where domain = @domain and purpose = @purpose 
-								and (@objectType is null or objectType = @objectType) and (@objectIdentifier is null or objectIdentifier = @objectIdentifier)
-								and subjectType = @subjectType and subjectIdentifier = @subjectIdentifier and (@action is null or @action = action)",
+								and objectType = @objectType
+							  	and objectIdentifier = @objectIdentifier
+								and subjectType = @subjectType 
+							  	and subjectIdentifier = @subjectIdentifier 
+							  	and action like @action",
 						param: new
 						{
-							domain = domainObject.Domain,
+							domain = domainObject?.Domain ?? string.Empty,
 							purpose,
-							objectType = domainObject.Object?.Type,
-							objectIdentifier = domainObject.Object?.Identifier,
+							objectType = domainObject?.Object?.Type ?? string.Empty,
+							objectIdentifier = domainObject?.Object?.Identifier ?? string.Empty,
 							subjectType = subject.Type,
 							subjectIdentifier = subject.Identifier,
-							action
+							action = string.IsNullOrWhiteSpace(action) ? "%" : action
 						},
 						splitOn: "identifier, timestamp, type, timestamp, type",
 						map: ( definition, entry, registrationTimestamp, registrar, lastUpdateTimestamp,
