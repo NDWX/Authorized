@@ -1,4 +1,4 @@
-name: master - build and NuGet publish
+name: Publish NuGet packages
 
 on:
   push:
