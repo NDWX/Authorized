@@ -2,8 +2,8 @@ name: master - build and NuGet publish
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - release-*
 
 env:
   BuildConfiguration: release
@@ -11,6 +11,7 @@ env:
   CommonProject: src/Pug.Authorized.Common/Pug.Authorized.Common.csproj
   MainProject: src/Pug.Authorized/Pug.Authorized.csproj
   DataCommonProject: src/Pug.Authorized.Data.Common/Pug.Authorized.Data.Common.csproj
+  SqlLiteDataProject: src/Pug.Authorized.Data.SqlLite/Pug.Authorized.Data.SqlLite.csproj
   DependencyInjectionProject: src/Pug.Authorized.DependencyInjection/Pug.Authorized.DependencyInjection.csproj
   RestProject: src/Pug.Authorized.WebApi/Pug.Authorized.WebApi.csproj
   PackagesBaseFolder: packages
@@ -20,47 +21,21 @@ jobs:
     name: Build and publish NuGet packages
     runs-on: ubuntu-latest
     steps:
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          java-version: 17
-          distribution: 'zulu' # Alternative distribution options are available.
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
 
 
       # Authenticates packages to push to GPR
-      - uses: actions/setup-dotnet@v3
+      - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8' # SDK Version to use.
           source-url: https://nuget.pkg.github.com/Authorized/index.json
         env:
           NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
-      - name: SonarCloud Scan
-        run: |
-          dotnet tool install --global dotnet-sonarscanner
-          dotnet sonarscanner begin /o:ndwx /k:NDWX_Authorized /d:sonar.login=${{secrets.SONAR_TOKEN}}  /d:sonar.host.url=https://sonarcloud.io  /d:sonar.cs.opencover.reportsPaths=**/coverage.opencover.xml
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
       - name: Restore NuGet packages
         run: dotnet restore ${{env.Solution}}
-
-      - name: Build Main project
-        run: dotnet build --nologo --no-restore --configuration ${{env.BuildConfiguration}} ${{env.MainProject}}
-
-      - name: Run tests
-        run: |
-          dotnet build --nologo --no-restore src/Pug.Authorized.Tests/Pug.Authorized.Tests.csproj
-          dotnet test --nologo src/Pug.Authorized.Tests/Pug.Authorized.Tests.csproj --no-build --no-restore --verbosity normal -p:CollectCoverage=true -p:CoverletOutputFormat=opencover
-
-      - name: End Sonar scan
-        run: dotnet sonarscanner end /d:sonar.login=${{ secrets.SONAR_TOKEN }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
 
       - name: Create packages base folder
         run: mkdir packages
@@ -87,6 +62,15 @@ jobs:
         run: dotnet pack --output ${{env.PackagesBaseFolder}} --nologo --configuration ${{env.BuildConfiguration}} ${{env.DataCommonProject}}
 
       - name: Publish DataCommon NuGet package to NuGet.org
+        run: dotnet nuget push ${{env.PackagesBaseFolder}}/*.nupkg --api-key ${{secrets.NUGET_APIKEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+      - name: Clear packages folder
+        run: rm packages/*.nupkg
+
+      - name: Pack Sqlite project
+        run: dotnet pack --output ${{env.PackagesBaseFolder}} --nologo --configuration ${{env.BuildConfiguration}} ${{env.SqlLiteDataProject}}
+
+      - name: Publish Sqlite  NuGet package to NuGet.org
         run: dotnet nuget push ${{env.PackagesBaseFolder}}/*.nupkg --api-key ${{secrets.NUGET_APIKEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
 
       - name: Clear packages folder
