@@ -34,9 +34,9 @@ internal class DummyUserRoleProvider : IUserRoleProvider
 		return _roles.ContainsKey(user) && _roles[user].Intersect(roles).Count() == roles.Count;
 	}
 
-	public async Task<bool> UserIsInRolesAsync( string user, ICollection<string> roles )
+	public Task<bool> UserIsInRolesAsync( string user, ICollection<string> roles )
 	{
-		throw new System.NotImplementedException();
+		return Task.FromResult(_roles.ContainsKey(user) && _roles[user].Intersect(roles).Count() == roles.Count);
 	}
 
 	public IEnumerable<string> GetUserRoles(string user, string domain)
@@ -44,8 +44,8 @@ internal class DummyUserRoleProvider : IUserRoleProvider
 		return _roles.ContainsKey(user) ? _roles[user] : new string[0];
 	}
 
-	public async Task<IEnumerable<string>> GetUserRolesAsync( string user, string domain )
+	public Task<IEnumerable<string>> GetUserRolesAsync( string user, string domain )
 	{
-		throw new System.NotImplementedException();
+		return Task.FromResult((IEnumerable<string>)(_roles.ContainsKey(user) ? _roles[user] : new string[0]));
 	}
 }
