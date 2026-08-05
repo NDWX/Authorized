@@ -8,9 +8,9 @@
 		<Company>Pug Computing</Company>
 		<RepositoryType>Git</RepositoryType>
 		<RepositoryUrl>https://github.com/NDWX/Authorized.git</RepositoryUrl>
-		<AssemblyVersion>0.7.1</AssemblyVersion>
-		<FileVersion>0.7.1</FileVersion>
-		<PackageVersion>0.7.1</PackageVersion>
+		<AssemblyVersion>0.7.2</AssemblyVersion>
+		<FileVersion>0.7.2</FileVersion>
+		<PackageVersion>0.7.2</PackageVersion>
 		<PackageTags>Pug.Authorized Authorization Framework Implementation</PackageTags>
 		<PackageLicenseExpression>Apache-2.0+</PackageLicenseExpression>
 		<License>Apache2.0</License>
