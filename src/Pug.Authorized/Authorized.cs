@@ -248,6 +248,9 @@ public class Authorized : IAuthorized
 		if( permissions == Permissions.Denied )
 			return Permissions.Denied;
 
+		if (subject.Type == SubjectTypes.Group && !effectiveRoles.Any() )
+			return permissions;
+
 		Permissions effectivePermissions = permissions;
 
 		// Evaluate effective roles authorization
@@ -258,30 +261,31 @@ public class Authorized : IAuthorized
 			@object.Domain == _options.ManagementDomain )
 			return effectivePermissions;
 
-		IEnumerable<string> managementRoles =
-			_userRoleProvider.GetUserRoles( subject.Identifier, _options.ManagementDomain );
+		IEnumerable<string> roles =
+			await _userRoleProvider.GetUserRolesAsync( subject.Identifier, _options.ManagementDomain );
 
-		if( !managementRoles.Any() )
+		if( !roles.Any() )
 			return effectivePermissions;
 
 		effectivePermissions |=
-			await GetEffectivePermissionAsync( managementRoles, action, @object, context, purpose, dataSession ).ConfigureAwait(false);
+			await GetEffectivePermissionAsync( roles, action, @object, context, purpose, dataSession )
+				.ConfigureAwait(false);
 
 		return effectivePermissions;
 	}
 
-	private Task CheckSetAceAuthorizationAsync( string purpose, DomainObject @object,
+	private async Task CheckSetAceAuthorizationAsync( string purpose, DomainObject @object,
 												Dictionary<string, IEnumerable<string>> authorizationContext,
 												Noun authorizationSubject )
 	{
-		return _dataStoreProvider.PerformAsync(
+		await _dataStoreProvider.PerformAsync(
 			async ( dataSession, ctx ) =>
 			{
 				bool allowed = false;
 
 				Permissions effectivePermissions = await ctx.@this.GetEffectivePermissionAsync(
 					ctx.authorizationSubject,
-					ctx.@this._userRoleProvider.GetUserRoles(
+					await ctx.@this._userRoleProvider.GetUserRolesAsync(
 						ctx.authorizationSubject.Identifier,
 						ctx.@object.Domain ),
 					AdministrativeActions.ManagePermissions,
@@ -320,29 +324,27 @@ public class Authorized : IAuthorized
 			[AdministrativeAccessControlContextKeys.Purpose] = new[] { purpose },
 		};
 
-		if( subject is not null )
-		{
-			authorizationContext[AdministrativeAccessControlContextKeys.SubjectType] = new[] { subject.Type };
-			authorizationContext[AdministrativeAccessControlContextKeys.SubjectIdentifier] =
-				new[] { subject.Identifier };
-		}
-
+		if( subject is null )
+			return authorizationContext;
+		
+		authorizationContext[AdministrativeAccessControlContextKeys.SubjectType] = new[] { subject.Type };
+		authorizationContext[AdministrativeAccessControlContextKeys.SubjectIdentifier] =
+			new[] { subject.Identifier };
+		
 		return authorizationContext;
 	}
 
-	public Task<Permissions> IsAuthorizedAsync( Noun subject, string action, DomainObject @object,
+	public async Task<Permissions> IsAuthorizedAsync( Noun subject, string action, DomainObject @object,
 												IDictionary<string, IEnumerable<string>> context, string purpose )
 	{
 		Validate( purpose, @object, false, false, subject );
 
 		action.Validate();
 
-		IEnumerable<string> effectiveRoles = null;
+		IEnumerable<string> effectiveRoles = 
+			await _userRoleProvider.GetUserRolesAsync(subject.Identifier, @object.Domain);
 
-		if( subject.Type != SubjectTypes.Group )
-			effectiveRoles = _userRoleProvider.GetUserRoles( subject.Identifier, @object.Domain );
-
-		return _dataStoreProvider.ExecuteAsync(
+		return await _dataStoreProvider.ExecuteAsync(
 			async ( dataSession, ctx ) =>
 			{
 				Permissions effectivePermission =
@@ -457,8 +459,8 @@ public class Authorized : IAuthorized
 
 						Permissions effectivePermissions = await ctx.@this.GetEffectivePermissionAsync(
 							ctx.authorizationSubject,
-							ctx.@this._userRoleProvider
-								.GetUserRoles(
+							await ctx.@this._userRoleProvider
+								.GetUserRolesAsync(
 									ctx.authorizationSubject
 										.Identifier,
 									ctx.@object.Domain ),
@@ -530,8 +532,8 @@ public class Authorized : IAuthorized
 
 						Permissions effectivePermissions = await ctx.@this.GetEffectivePermissionAsync(
 							ctx.authorizationSubject,
-							ctx.@this._userRoleProvider
-								.GetUserRoles(
+							await ctx.@this._userRoleProvider
+								.GetUserRolesAsync(
 									ctx.authorizationSubject
 										.Identifier,
 									ctx.@object.Domain ),
