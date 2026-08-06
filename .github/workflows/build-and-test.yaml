@@ -1,9 +1,14 @@
-name: develop - build
+name: Build and test
 
 on:
   push:
     branches:
       - develop
+      - main
+      - support/v*
+      - feature/*
+      - support/v*/bugfix/*
+      - support/v*/feature/*
 
 env:
   BuildConfiguration: debug

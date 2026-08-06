@@ -137,43 +137,44 @@ public class Authorized : IAuthorized
 	///		</item>
 	/// </list>
 	/// </returns>
-	private static async Task<Permissions> GetEffectivePermissionAsync( Noun subject, string action, NounQualifier @object,
-																		IDictionary<string, IEnumerable<string>> context,
-																		string purpose,
-																		IAuthorizedDataStore dataSession )
+	private static async Task<Permissions> GetEffectivePermissionAsync(Noun subject, string action,
+		NounQualifier @object,
+		IDictionary<string, IEnumerable<string>> context,
+		string purpose,
+		IAuthorizedDataStore dataSession)
 	{
 		// check authorization for specified parameters
 		Permissions permissions =
-			await GetPermissionAsync( subject, action, purpose, @object, context, dataSession )
-				.ConfigureAwait( false );
+			await GetPermissionAsync(subject, action, purpose, @object, context, dataSession)
+				.ConfigureAwait(false);
 
-		if( permissions != Permissions.None )
+		if (permissions != Permissions.None)
 			return permissions;
 
-		// check permission for 'action' against entire object 'type' rather than specific object
-		if( @object != null && !string.IsNullOrWhiteSpace( @object.Type ) )
+		if (!string.IsNullOrWhiteSpace(@object.Identifier))
 		{
+			// check permission for 'action' against entire object 'type' rather than specific object
 			// check authorization for object type
-			if( !string.IsNullOrWhiteSpace( @object.Identifier ) )
-			{
-				permissions =
-					await GetPermissionAsync(
-							subject,
-							action,
-							purpose,
-							@object with
-							{
-								 Identifier = string.Empty
-							},
-							context,
-							dataSession
-						)
-						.ConfigureAwait( false );
+			permissions =
+				await GetPermissionAsync(
+						subject,
+						action,
+						purpose,
+						@object with
+						{
+							Identifier = string.Empty
+						},
+						context,
+						dataSession
+					)
+					.ConfigureAwait(false);
 
-				if( permissions != Permissions.None )
-					return permissions;
-			}
+			if (permissions != Permissions.None)
+				return permissions;
+		}
 
+		if (!string.IsNullOrWhiteSpace(@object.Type))
+		{
 			// check authorization for action
 			permissions =
 				await GetPermissionAsync(
@@ -184,14 +185,21 @@ public class Authorized : IAuthorized
 						context,
 						dataSession
 					)
-					.ConfigureAwait( false );
+					.ConfigureAwait(false);
 
-			if( permissions != Permissions.None )
+			if (permissions != Permissions.None)
 				return permissions;
-
 		}
 
-		return Permissions.None;
+		if (!string.IsNullOrWhiteSpace(@object.Domain))
+		{
+			// check authorization for action in all domains
+			permissions =
+				await GetPermissionAsync(subject, action, purpose, null, context, dataSession)
+					.ConfigureAwait(false);
+		}
+
+		return permissions;
 	}
 
 	/// <summary>
@@ -219,14 +227,13 @@ public class Authorized : IAuthorized
 		foreach( string role in roles )
 		{
 			permissions = await GetEffectivePermissionAsync(
-								new Noun() { Identifier = role, Type = SubjectTypes.Group },
+							new Noun() { Identifier = role, Type = SubjectTypes.Group },
 								action,
 								@object,
 								context,
 								purpose,
 								dataStore
-							)
-							.ConfigureAwait( false );
+							).ConfigureAwait( false );
 
 			if( permissions == Permissions.Denied )
 				return Permissions.Denied;
@@ -269,14 +276,14 @@ public class Authorized : IAuthorized
 
 		Permissions effectivePermissions = permissions;
 
-        // Evaluate effective roles authorization
-        effectivePermissions |=
+		// Evaluate effective roles authorization
+		effectivePermissions |=
             await GetEffectivePermissionAsync(effectiveRoles, action, @object, context, purpose, dataSession)
 				.ConfigureAwait( false );
 
-        if (effectivePermissions == Permissions.Denied || subject.Type == SubjectTypes.Group ||
-			@object.Domain == _options.ManagementDomain)
-            return effectivePermissions;
+		if( effectivePermissions == Permissions.Denied || subject.Type == SubjectTypes.Group ||
+			@object.Domain == _options.ManagementDomain )
+			return effectivePermissions;
 
         IEnumerable<string> roles =
 			await _principalRoleProvider.GetPrincipalRolesAsync( subject.Identifier ).ConfigureAwait( false );
